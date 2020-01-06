@@ -1,0 +1,122 @@
+<ui:composition  xmlns="http://www.w3.org/1999/xhtml"
+                 xmlns:h="http://xmlns.jcp.org/jsf/html"
+                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                 xmlns:p="http://primefaces.org/ui"
+                 xmlns:f="http://xmlns.jcp.org/jsf/core"
+                 xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+    <p:dialog appendTo="@(body)" header="liste des sorties de mission" widgetVar="retourmissionListeDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+        <h:form id="wretourmissionListe">
+
+            <p:dataTable value="#{sortieBean.listeMission}" id="sortieTable" var="item"  widgetVar="sortieTab" filteredValue="#{sortieBean.filteredsorties}"
+                         selectionMode="single" selection="#{sortieBean.selectedSortie}" rowKey="#{item.idsortie}" rows="10" paginator="true"
+                         paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                         rowsPerPageTemplate="5,10,15" style="margin-bottom:20px"
+                         emptyMessage="No sortie found with given criteria">
+                <p:ajax event="rowSelect" update=":wmissionsortis,:wretourmissionListe" listener="#{sortieBean.setCollection()}"/>
+                <p:ajax event="rowUnselect" update=":wmissionsortis,:wretourmissionListe" />
+                <f:facet name="header">
+                    Liste de soties
+                    <p:outputPanel>
+                        <h:outputText value="Search all fields:" />
+                        <p:inputText id="globalFilter" onkeyup="PF('sortieTab').filter()" style="width:300px" placeholder="Enter keyword"/>
+                    </p:outputPanel>
+                    <p:commandButton id="toggler" type="button" value="Columns" style="float:right" icon="ui-icon-calculator" />
+                    <p:columnToggler datasource="sortieTable" trigger="toggler" />
+                </f:facet>
+                <p:column sortBy="#{item.idsortie}">
+                    <f:facet name="header">
+                        <h:outputText value="Id de la sortie"/>
+                    </f:facet>
+                    <h:outputText value="#{item.idsortie}"/>
+                </p:column>
+                <p:column sortBy="#{item.libellesortie}">
+                    <f:facet name="header">
+                        <h:outputText value="Libelle de la sortie"/>
+                    </f:facet>
+                    <h:outputText value="#{item.libellesortie}"/>
+                </p:column>
+                <p:column >
+                    <f:facet name="header">
+                        <h:outputText value="Description de la  sortie"/>
+                    </f:facet>
+                    <h:outputText value="#{item.descriptionsortie}"/>
+                </p:column>
+                <p:column>
+                    <f:facet name="filter">
+                        <p:calendar pattern="MM/dd/yyyy HH:mm:ss" onchange=""/>
+                    </f:facet>
+                    <f:facet name="header">
+                        <h:outputText value="Date sortie"/>
+                    </f:facet>
+                    <h:outputText value="#{item.datesortie}">
+                        <f:convertDateTime pattern="MM/dd/yyyy HH:mm:ss" />
+                    </h:outputText>
+                </p:column>
+                <p:column>
+                    <f:facet name="header">
+                        <h:outputText value="Date prevue de retour"/>
+                    </f:facet>
+                    <f:facet name="filter">
+                        <p:calendar pattern="MM/dd/yyyy HH:mm:ss" onchange=""></p:calendar>
+                    </f:facet>
+                    <h:outputText value="#{item.dateprevuretour}">
+                        <f:convertDateTime pattern="MM/dd/yyyy HH:mm:ss" />
+                    </h:outputText>
+                </p:column>
+
+                <p:column>
+                    <f:facet name="header">
+                        <h:outputText value="agent"/>
+                    </f:facet>
+                    <h:outputText value="#{item.idagent.nom} #{item.idagent.prenom}"/>
+                </p:column>
+                <f:facet name="footer">
+                    <c:if test="#{(sortieBean.selectedSortie.idtypesortie!=null) and (sortieBean.listeMission.size()>0)}">
+                        <p:commandButton  update=":wmissionsortis" value="Equipements sortis" oncomplete="PF('missionsortisDialog').show()"/>
+                        <p:commandButton  update=":wretourmissionListe" value="Retourner" action="#{sortieBean.retourner()}" disabled="#{sortieBean.selectedSortie.dateretour!=null}"/>
+                        <p:commandButton value="APERCU" ajax="false" action="#{sortieBean.printPdfRetourmission()}"/>
+                    </c:if>  
+                </f:facet>
+            </p:dataTable>
+        </h:form>
+    </p:dialog>
+    <!--liste des equipements sortis -->
+    <p:dialog appendTo="@(body)" widgetVar="missionsortisDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+
+        <h:form id="wmissionsortis">
+            <p:dataTable value="#{sortieBean.selectedSortie.equipementsortisCollection}" var="item" 
+                         rows="10" paginator="true"
+                         paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                         rowsPerPageTemplate="5,10,15" style="margin-bottom:20px"
+                         emptyMessage="pas d'équipements pour cette sortie" scrollable="true">
+                <f:facet name="header">
+                    <h:outputText value="liste des equipements de la sortie #{sortieBean.selectedSortie.idsortie}"/>
+                </f:facet>
+                <p:column>
+                    <f:facet name="header">
+                        <h:outputText value="id de l'équipement"/>
+                    </f:facet>
+                    <h:outputText value="#{item.equipement.idequip}"/>
+                </p:column>
+                <p:column>
+                    <f:facet name="header">
+                        <h:outputText value="désignation de l'équipement"/>
+                    </f:facet>
+                    <h:outputText value="#{item.equipement.codearticle.designation}"/>
+                </p:column>
+                <p:column>
+                    <f:facet name="header">
+                        <h:outputText value="position"/>
+                    </f:facet>
+                    <h:outputText value="#{item.equipement.magasinActuel.nommagasin}"/>
+                    <h:outputText value="#{item.equipement.posteActuel.nomposte}"/>
+                </p:column>
+                <f:facet name="footer">
+                    <c:if test="#{sortieBean.selectedSortie.valider=='false'}">
+                        <p:commandButton update=":wnouveauequipementsortis" value="nouveau" oncomplete="PF('nouveauequipementsortisDialog').show()"/>
+                    </c:if>
+                </f:facet>
+            </p:dataTable>
+        </h:form>
+    </p:dialog> 
+</ui:composition>

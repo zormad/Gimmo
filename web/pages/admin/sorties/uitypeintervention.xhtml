@@ -1,0 +1,68 @@
+<ui:composition  xmlns="http://www.w3.org/1999/xhtml"
+                 xmlns:h="http://xmlns.jcp.org/jsf/html"
+                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                 xmlns:p="http://primefaces.org/ui"
+                 xmlns:f="http://xmlns.jcp.org/jsf/core"
+                 xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+    <p:dialog appendTo="@(body)" header="liste des types d'intervention" widgetVar="listeinerventionsDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+        <h:form id="wlisteinerventions"> 
+            <p:growl><p:autoUpdate/></p:growl>
+            <p:dataTable value="#{sortieBean.listeinterventions}" var="item" rows="5" paginator="true"
+                         paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                         rowsPerPageTemplate="5,10,15"  editable="true" style="margin-bottom:20px"
+                         emptyMessage="pas de type d'interventions trouvés selon vos critères" scrollable="true">
+                <p:ajax event="rowEdit" listener="#{sortieBean.updateTypeIntervention}" update=":wreparationEquipListe"/>
+                <p:ajax event="rowEditCancel" listener="#{sortieBean.cancelled()}" />
+
+                <p:column>
+                    <f:facet name="header">
+                        <h:outputText value="type d'intervention"/>
+                    </f:facet>
+                    <h:outputText value="#{item.codetypeint}"/>
+                </p:column>
+                <p:column>
+                    <f:facet name="header">
+                        <h:outputText value="Libelle du type de l'intervention"/>
+                    </f:facet>
+                    <p:cellEditor>
+                        <f:facet name="output"><h:outputText value="#{item.libelletypeint}" /></f:facet>
+                        <f:facet name="input"><p:inputText value="#{item.libelletypeint}" style="width:100%"/></f:facet>
+                    </p:cellEditor>
+                </p:column>
+                 <p:column style="width:32px">
+                        <p:rowEditor />
+                    </p:column>
+                    <p:column style="width:32px;text-align: center">
+                        <p:commandButton actionListener="#{sortieBean.deleteTypeIntervention(item)}" icon="ui-icon-close" update=":wlisteinerventions,:wreparationEquipListe">
+                            <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert" />
+                        </p:commandButton>
+
+                        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                            <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                        </p:confirmDialog>
+                    </p:column>
+                <f:facet name="footer">
+                    <p:commandButton value="Nouveau" oncomplete="PF('nouveauinterventionsDialog').show()"/>
+                </f:facet>
+            </p:dataTable>                        
+        </h:form>
+    </p:dialog>
+
+    <p:dialog appendTo="@(body)" header="nouveau  type d'intervention" widgetVar="nouveauinterventionsDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+        <h:form id="wnouveauinterventions"> 
+            <p:growl><p:autoUpdate/></p:growl>
+            <p:panelGrid columns="2">
+                <p:outputLabel value="type de l'intervention:" for="codetypeint" />
+                <p:inputText id="codetypeint" value="#{sortieBean.typeIntervention.codetypeint}" title="Codetypeint" required="true" requiredMessage="The Codetypeint field is required."/>
+                <p:outputLabel value="Libelle du type d'intervention:" for="libelletypeint" />
+                <p:inputText id="libelletypeint" value="#{sortieBean.typeIntervention.libelletypeint}" title="Libelletypeint" />
+                <f:facet name="footer">
+                    <p:commandButton update=":wlisteinerventions,:wnouveauinterventions,:wreparationEquipListe"  value="Enregistrer" action="#{sortieBean.createTypeIntervention()}"/>
+                </f:facet>
+            </p:panelGrid>
+        </h:form>
+    </p:dialog>
+
+</ui:composition>

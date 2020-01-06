@@ -1,0 +1,128 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"  
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <p:accordionPanel  widgetVar="type">
+        <p:tab title="type">
+            <p:dialog appendTo="@(body)" header="Création de Type d'équipement" widgetVar="typenewDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                <h:form>
+                    <p:growl><p:autoUpdate/></p:growl>
+                    <p:panelGrid columns="2">
+                        <p:outputLabel value="groupe" for="groupe" />
+                        <p:selectOneMenu id="groupe" value="#{familleBean.groupe.idgroupe}" required="true" requiredMessage="le groupe ne peut etre vide">
+                            <!-- TODO: update below reference to list of available items-->
+                            <f:ajax listener="#{familleBean.changeGroupe()}" render="famCodefamille"/>
+                            <f:selectItem itemLabel="Select One" itemValue=""/>
+                            <f:selectItems value="#{groupeBean.listeGroupe}" var="groupe" itemLabel="#{groupe.nomgroupe}" itemValue="#{groupe.idgroupe}"/>
+                        </p:selectOneMenu>
+                        <p:outputLabel value="famille:" for="famCodefamille" />
+                        <p:selectOneMenu id="famCodefamille" value="#{typeBean.famille.codefamille}" required="true" requiredMessage="la famille ne peut etre vide">
+                            <!-- TODO: update below reference to list of available items-->
+                            <f:selectItem itemLabel="Select One" itemValue=""/>
+                            <f:selectItems value="#{familleBean.groupe.familleCollection}" var="familleT" itemLabel="#{familleT.nomfamille}" itemValue="#{familleT.codefamille}"/>
+                        </p:selectOneMenu>
+                        <p:outputLabel value="Code type:" for="codetype" />
+                        <p:inputText id="codetype" value="#{typeBean.type.codetype}" title="Codetype" required="true" requiredMessage="The Codetype field is required."/>
+                        <p:outputLabel value="Nom type:" for="nomtype" />
+                        <p:inputText id="nomtype" value="#{typeBean.type.nomtype}" title="Nomtype" />
+                        <p:commandButton value="save" action="#{typeBean.createType()}" update="@widgetVar(type)"/>
+                    </p:panelGrid>
+                </h:form>
+            </p:dialog>
+            <h:form id="formType">
+                <p:growl id="growl"><p:autoUpdate/></p:growl>
+                <p:dataTable value="#{typeBean.listeType}" var="item" id="typeTable" rows="10" paginator="true"
+                             paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                             rowsPerPageTemplate="5,10,15" widgetVar="typeTab" editable="true" style="margin-bottom:20px"
+                             emptyMessage="No type found with given criteria" scrollable="true">
+                    <p:ajax event="rowEdit" listener="#{typeBean.updateType}"/>
+                    <p:ajax event="rowEditCancel" listener="#{typeBean.cancelledType()}" />
+                    <f:facet name="header">
+                        Liste de  types d'article
+
+                        <p:commandButton id="toggler" type="button" value="Columns" style="float:right" icon="ui-icon-calculator" />
+                        <p:columnToggler datasource="typeTable" trigger="toggler" />
+                    </f:facet>
+                    <p:column sortBy="#{item.codetype}" filterBy="#{item.codetype}">
+                        <f:facet name="header">
+                            <h:outputText value="Code type"/>
+                        </f:facet>
+                        <h:outputText value="#{item.codetype}"/>
+                    </p:column>
+                    <p:column sortBy="#{item.nomtype}" filterBy="#{item.nomtype}">
+                        <f:facet name="header">
+                            <h:outputText value="Nom type"/>
+                        </f:facet>
+                        <p:cellEditor>
+                            <f:facet name="output"><h:outputText value="#{item.nomtype}" /></f:facet>
+                            <f:facet name="input"><p:inputText value="#{item.nomtype}" style="width:100%"/></f:facet>
+                        </p:cellEditor>
+                    </p:column>
+                    <p:column sortBy="#{item.codefamille.nomfamille}">
+                        <f:facet name="header">
+                            <h:outputText value="famille"/>
+                        </f:facet>
+                        <p:cellEditor>
+                            <f:facet name="output"><h:outputText value="#{item.codefamille.nomfamille}" /></f:facet>
+                            <f:facet name="input">
+                                <h:selectOneMenu value="#{item.codefamille.codefamille}">
+                                    <f:selectItems value="#{familleBean.listeFamille}" var="famille" itemLabel="#{famille.nomfamille}" itemValue="#{famille.codefamille}"/>
+                                </h:selectOneMenu>
+                            </f:facet>
+                        </p:cellEditor>
+                    </p:column>
+                    <p:column style="width:32px">
+                        <p:rowEditor />
+                    </p:column>
+                    <p:column style="width:32px;text-align: center">
+                        <p:commandButton update="@widgetVar(type)"  oncomplete="PF('typeDialog').show()" icon="ui-icon-search" title="View">
+                            <f:setPropertyActionListener value="#{item}" target="#{typeBean.selectedType}" />
+                        </p:commandButton>
+                    </p:column>
+                    <p:column style="width:32px;text-align: center">
+                        <p:commandButton actionListener="#{typeBean.deleteType(item)}" icon="ui-icon-close" update="@widgetVar(type)">
+                            <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert" />
+                        </p:commandButton>
+
+                        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                            <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                        </p:confirmDialog>
+                    </p:column>
+                    <f:facet name="footer">
+                        <p:commandButton value="nouveau" oncomplete="PF('typenewDialog').show()"/>
+                    </f:facet>
+                </p:dataTable>
+                <p:dialog header="type Info" widgetVar="typeDialog" modal="false" showEffect="fade" hideEffect="fade" resizable="false">
+                    <p:outputPanel id="typeDetail" style="text-align:center;">
+                        <p:panelGrid  columns="2" rendered="#{not empty typeBean.selectedType}" columnClasses="label,value">
+
+                            <h:outputText value="code type" />
+                            <h:outputText value="#{typeBean.selectedType.codetype}" />
+
+                            <h:outputText value="libelle type" />
+                            <h:outputText value="#{typeBean.selectedType.nomtype}"/>
+
+                            <h:outputText value="libelle famille" />
+                            <h:outputText value="#{typeBean.selectedType.codefamille.nomfamille}" />
+
+                            <h:outputText value="cree Le" />
+                            <h:outputText value="#{typeBean.selectedType.creele}"/>
+
+                            <h:outputText value="cree Par" />
+                            <h:outputText value="#{typeBean.selectedType.creepar}"/>
+
+                            <h:outputText value="modifier Le" />
+                            <h:outputText value="#{typeBean.selectedType.modifiele}"/>
+
+                            <h:outputText value="modifie Par" />
+                            <h:outputText value="#{typeBean.selectedType.modifiepar}"/>
+                        </p:panelGrid>
+                    </p:outputPanel>
+                </p:dialog>
+            </h:form>
+        </p:tab>
+    </p:accordionPanel>
+
+</ui:composition>

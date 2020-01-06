@@ -1,0 +1,213 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+    <h:head>
+        <title>Facelet Title</title>
+    </h:head>
+    <h:body>
+        <ui:composition template="../template.xhtml">
+            <ui:define name="content">
+                <ui:include src="bonrestitutionMagasin.xhtml"/>
+                <h:form id="include">
+                    <p:growl><p:autoUpdate/></p:growl>
+                    <p:commandButton id="nouveauBon" value=" bon de restitution" type="button" onclick="PF('bonDialog').show();" update="@form" ajax="false"/>
+                    <c:if test="#{(retournerBean.bonrestitution.idbonrestitution!=null) and (retournerBean.magasin.idcodemagasin!=null)}">
+                        <p:commandButton  id="validerBon" value="valider le bon de restitution" type="button" onclick="PF('validerBon').show();" update="@form"/>
+                    </c:if>
+                </h:form>
+                <h:form id="restitutionMagasin">
+                    <p:growl><p:autoUpdate/></p:growl>
+                    <div class="ui-g">
+                        <div class="ui-g-6">
+                            <p:panelGrid columns="2" >
+                                <p:outputLabel value="Structure:" for="structureD" />
+                                <p:selectOneMenu  id="structureD" value="#{retournerBean.structure.codestructure}"   required="true" requiredMessage="The structure field is required.">
+                                    <!-- TODO: update below reference to list of available items-->
+
+                                    <f:ajax  listener="#{retournerBean.changeValueP()}" render="@form"/>
+                                    <p:ajax update=":include,@widgetVar(bonnewDialogMagasin),@widgetVar(bonDialog)"/>
+                                    <f:selectItem itemValue="" itemLabel="select One"/>
+                                    <f:selectItems actionListener="service" value="#{structureBean.liste}" var="structureD" itemLabel="#{structureD.libellestructure}" itemValue="#{structureD.codestructure}"/>
+                                </p:selectOneMenu>
+                                <p:outputLabel value="Magasin:" for="magasinD" />
+                                <h:outputText value="#{retournerBean.magasinD.nommagasin}" id="magasinD"/>
+                                <p:outputLabel value="Magasin Principal:" for="magasin" />
+                                <p:selectOneMenu id="magasin" value="#{retournerBean.magasin.idcodemagasin}" required="true" requiredMessage="The magasin field is required.">
+                                    <!-- TODO: update below reference to list of available items-->
+                                    <f:selectItems value="#{retournerBean.magasinPrincipal}" var="magasinn" itemLabel="#{magasinn.nommagasin}" itemValue="#{magasinn.idcodemagasin}"/>
+                                </p:selectOneMenu>
+                                <p:outputLabel value="Bon:" for="cbon" />
+                                <p:selectOneMenu  id="cbon" value="#{retournerBean.bonrestitution.idbonrestitution}" required="true" requiredMessage="The bon field is required.">
+                                    <!-- TODO: update below reference to list of available items-->
+                                    <f:ajax listener="#{retournerBean.updatebon()}" render="@form"/>
+                                    <f:ajax render=":include"  />
+                                    <p:ajax update="@form,@widgetVar(validerBon)"  />
+                                    <f:selectItem itemValue="" itemLabel="select One"/>
+                                    <f:selectItems value="#{retournerBean.listebonMagasin}" var="bon" itemLabel="#{bon.libellebonrestitution}" itemValue="#{bon.idbonrestitution}"/>
+                                </p:selectOneMenu>
+
+                            </p:panelGrid>
+                        </div>
+                    </div>
+                    <p:pickList id="affectationPickList" value="#{retournerBean.equipementsMagasin}" var="equipement" effect="bounce"
+                                itemValue="#{equipement.idequip}" itemLabel="#{equipement.idequip}#{equipement.codearticle.designation}"  showCheckbox="true" responsive="true"
+                                showSourceFilter="true" showTargetFilter="true" filterMatchMode="contains" converter="equipementConverter" >
+
+                        <f:facet name="sourceCaption">Available</f:facet>
+                        <f:facet name="targetCaption">Starting</f:facet>
+
+                        <p:ajax event="transfer" listener="#{retournerBean.onTransfer}"/>
+                        <p:ajax event="select" listener="#{retournerBean.onSelect}" />
+                        <p:ajax event="unselect" listener="#{retournerBean.onUnselect}" />
+                        <p:ajax event="reorder" listener="#{retournerBean.onReorder}" />
+
+                    </p:pickList>
+                    <p:panelGrid columns="2">
+                        <p:outputLabel value="type de retour" for="type2" />
+                        <p:selectOneMenu value="#{retournerBean.type1.idtyperetour}" id="type2">
+                            <f:selectItems value="#{retournerBean.listeRetour}" var="type3" itemLabel="#{type3.libelletyperetour}" itemValue="#{type3.idtyperetour}"/>
+                        </p:selectOneMenu>
+                    </p:panelGrid>
+                    <p:commandButton id="affectationSubmit" value="Retourner" update="@form,@widgetVar(validerBon)" action="#{retournerBean.retournerPrincipal()}" style="margin-top:5px" />
+
+
+                    <p:dialog modal="false" showEffect="fade" hideEffect="fade" widgetVar="affectationDialog">
+                        <h:panelGrid id="displayaffectation" columns="2">
+                            <h:outputText value="Source: " style="font-weight:bold" />
+                            <ui:repeat value="#{retournerBean.equipementsMagasin.source}" var="equipement">
+                                <h:outputText value="#{equipement.idequip}" style="margin-right:5px" />
+                            </ui:repeat>
+
+                            <h:outputText value="Target: " style="font-weight:bold" />
+                            <ui:repeat value="#{retournerBean.equipementsMagasin.target}" var="equip">
+                                <h:outputText value="#{equip.idequip}" style="margin-right:5px" />
+                            </ui:repeat>
+                        </h:panelGrid>
+                    </p:dialog>
+
+
+                    <h:form>
+                        <h1><h:outputText value="Liste des équipements retournés"/></h1>
+                        <p:dataTable value="#{retournerBean.equipementsretournesMagasin}" 
+                                     var="item" rows="10" paginator="true"
+                                     paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                     rowsPerPageTemplate="5,10,15" editable="true" style="margin-bottom:20px"
+                                     emptyMessage="No equipement found with given criteria">
+                            <c:if test="#{retournerBean.bonrestitution.idbonrestitution!=null}">
+                                <f:facet name="header">
+                                    <c:if test="#{retournerBean.bonrestitution.valider=='false'}">
+                                        <p:commandButton  value="valider" type="button" onclick="PF('validerBon').show();"/>
+                                    </c:if>
+                                    <p:commandButton ajax="false" value="Imprimer"  rendered="#{retournerBean.equipementsretournesMagasin.size()>0}" actionListener="#{retournerBean.printPdfPoste()}"/>
+                                </f:facet>
+                            </c:if>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Id equipement"/>
+                                </f:facet>
+                                <h:outputText value="#{item.idequip}"/>
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Cout d'acquisition"/>
+                                </f:facet>
+                                <h:outputText value="#{item.coutacqui}"/>
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="designation"/>
+                                </f:facet>
+                                <h:outputText value="#{item.codearticle.designation}"/>
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="marque"/>
+                                </f:facet>
+                                <h:outputText value="#{item.idmarque.nommarque}"/>
+                            </p:column>
+                        </p:dataTable>
+                    </h:form>
+                </h:form>
+
+                <p:dialog appendTo="@(body)" header="Equipements du bon de restitutionMagasin #{retournerBean.bonrestitution.idbonrestitution} #{retournerBean.bonrestitution.libellebonrestitution}" widgetVar="validerBon" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                    <p:dataTable id="listevaliderBon" value="#{retournerBean.equipementsretournesMagasin}" 
+                                 var="item" rows="10" paginator="true"
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rowsPerPageTemplate="5,10,15" editable="true" style="margin-bottom:20px"
+                                 emptyMessage="No equipement found with given criteria">
+                        <f:facet name="header">
+                            <c:if test="#{retournerBean.bonrestitution.valider=='false'}">
+                                <p:commandButton update=":include,:restitutionMagasin,@widgetVar(validerBon)" value="Valider" actionListener="#{retournerBean.updateBon()}" >
+                                    <p:confirm header="Confirmation" message="Etes vous sûr?" icon="ui-icon-alert" />
+                                </p:commandButton>
+
+                                <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                                    <p:commandButton value="Oui" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                                    <p:commandButton value="Non" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                                </p:confirmDialog>
+                            </c:if>
+                        </f:facet>
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="Idequip"/>
+                            </f:facet>
+                            <h:outputText value="#{item.idequip}"/>
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="Date d'acquisition"/>
+                            </f:facet>
+                            <h:outputText value="#{item.dateacqui}"> 
+                                <f:convertDateTime pattern="MM/dd/yyyy HH:mm:ss" />
+                            </h:outputText>
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="Cout d'acquisition"/>
+                            </f:facet>
+                            <h:outputText value="#{item.coutacqui}"/>
+                        </p:column>
+
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="article"/>
+                            </f:facet>
+                            <h:outputText value="#{item.codearticle.designation}"/>
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="etat"/>
+                            </f:facet>
+                            <h:outputText value="#{item.idetat.libelleetat}"/>
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="marque"/>
+                            </f:facet>
+                            <h:outputText value="#{item.idmarque.nommarque}"/>
+                        </p:column>
+                        <f:facet name="footer">
+                            <c:if test="#{retournerBean.bonrestitution.valider=='false'}">
+                                <p:commandButton update=":include,:restitutionMagasin,@widgetVar(validerBon)" value="Valider" actionListener="#{retournerBean.updateBon()}" >
+                                    <p:confirm header="Confirmation" message="Etes vous sûr?" icon="ui-icon-alert" />
+                                </p:commandButton>
+
+                                <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                                    <p:commandButton value="Oui" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                                    <p:commandButton value="Non" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                                </p:confirmDialog>
+                            </c:if>
+                        </f:facet>
+                    </p:dataTable>
+                </p:dialog>
+            </ui:define>
+        </ui:composition>
+
+    </h:body>
+</html>
+

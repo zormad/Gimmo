@@ -1,0 +1,77 @@
+
+
+
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+    <p:dialog appendTo="@(body)" header="création de bon" widgetVar="bonnewDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+        <h:form> 
+            <p:panelGrid columns="2">
+                <c:if test="#{equipUtilBean.entreeMagasin=='secondaire'}">
+                    <p:outputLabel value="Structure:" for="structure" />
+                    <p:selectOneMenu id="structure" value="#{equipUtilBean.structure.codestructure}"   required="true" requiredMessage="The structure field is required.">
+                        <!-- TODO: update below reference to list of available items-->
+                        <f:ajax listener="#{equipUtilBean.changealuesstructure()}" render="magasinT"/>
+                        <f:selectItem itemValue="" itemLabel="select One"/>
+                        <f:selectItems actionListener="magasinT" value="#{structureBean.liste}" var="structure" itemLabel="#{structure.libellestructure}" itemValue="#{structure.codestructure}"/>
+                    </p:selectOneMenu>
+                    <p:outputLabel value="Magasin:" for="magasinT" />
+                    <h:outputText value="#{equipUtilBean.magasin.nommagasin}" id="magasinT"/>
+                </c:if>
+                 <c:if test="#{equipUtilBean.entreeMagasin=='principal'}">
+                            <p:outputLabel value="Magasin" for="magasin" />
+                            <p:selectOneMenu id="magasin" value="#{equipUtilBean.magasin.idcodemagasin}"   required="true" requiredMessage="The structure field is required.">
+                                <!-- TODO: update below reference to list of available items-->
+                                <f:selectItem itemValue="" itemLabel="select One"/>
+                                <f:selectItems value="#{equipUtilBean.listeMagasinsP}" var="mag" itemValue="#{mag.idcodemagasin}" itemLabel="#{mag.nommagasin}"/>
+                            </p:selectOneMenu>
+                        </c:if>
+                <p:outputLabel value="Libelle du bon:" for="libelle" />
+                <p:inputText id="libelle" value="#{equipUtilBean.bon.libelle}" title="Libelle" />
+                <p:outputLabel value="source de financement:" for="idsource" />
+                <p:selectOneMenu id="idsource" value="#{equipUtilBean.source.idsource}" required="true" requiredMessage="The Idsource field is required.">
+                    <!-- TODO: update below reference to list of available items-->
+                    <f:selectItems value="#{sourcedefinancementBean.liste}" var="source" itemLabel="#{source.libellesource}" itemValue="#{source.idsource}"/>
+                </p:selectOneMenu>
+                <p:outputLabel value="fournisseur:" for="idfournisseur" />
+                <p:selectOneMenu id="idfournisseur" value="#{equipUtilBean.fournisseur.idfournisseur}" required="true" requiredMessage="The Idfournisseur field is required.">
+                    <!-- TODO: update below reference to list of available items-->
+                    <f:selectItems value="#{fournisseurBean.liste}" var="fournisseur" itemLabel="#{fournisseur.libellefournisseur}" itemValue="#{fournisseur.idfournisseur}"/>
+                </p:selectOneMenu>
+                <p:commandButton update=":bon,:equipement:cbon" value="Ajouter Bon" action="#{equipUtilBean.createBon()}">
+                    <f:ajax listener="#{equipUtilBean.init()}"/>
+                </p:commandButton>
+            </p:panelGrid>
+        </h:form>
+    </p:dialog> 
+    <p:dialog appendTo="@(body)" header="liste de bon d'entrée" widgetVar="bonDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+
+        <h:form id="bon">
+            <p:dataTable value="#{equipUtilBean.listeBonAll}" var="item" 
+                         rows="10" paginator="true"
+                         paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                         rowsPerPageTemplate="5,10,15" widgetVar="bonTab" editable="true" style="margin-bottom:20px"
+                         emptyMessage="No bon found with given criteria" scrollable="true">
+                <p:column>
+                    <f:facet name="header">
+                        <h:outputText value="Numbon"/>
+                    </f:facet>
+                    <h:outputText value="#{item.numbon}"/>
+                </p:column>
+                <p:column>
+                    <f:facet name="header">
+                        <h:outputText value="Libelle"/>
+                    </f:facet>
+                    <h:outputText value="#{item.libelle}"/>
+                </p:column>
+                <f:facet name="footer">
+                    <p:commandButton value="nouveau" oncomplete="PF('bonnewDialog').show()"/>
+                </f:facet>
+            </p:dataTable>
+        </h:form>
+    </p:dialog>
+</ui:composition>

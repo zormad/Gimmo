@@ -1,0 +1,110 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:head>
+        <title>Facelet Title</title>
+    </h:head>
+    <h:body>
+        <ui:composition template="../template.xhtml">
+            <ui:define name="content">
+                <p:dialog appendTo="@(body)" header="création de type retour" widgetVar="typeretournewDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                    <h:form>
+                        <p:growl><p:autoUpdate/></p:growl>
+                        <p:panelGrid columns="2">
+                            <p:outputLabel value="id type de retour:" for="idTypeRetour" />
+                            <p:inputText id="idTypeRetour" value="#{retournerBean.type.idtyperetour}" title="LibelletypeRetour" />
+                            <p:outputLabel value="Libelle type de retour:" for="libelleTypeRetour" />
+                            <p:inputText id="libelleTypeRetour" value="#{retournerBean.type.libelletyperetour}" title="LibelletypeRetour" />
+                            <f:facet name="footer">
+                                <p:commandButton value="save" action="#{retournerBean.createType()}" update="formRetourner"/>
+                            </f:facet>
+                        </p:panelGrid>
+                    </h:form>
+                </p:dialog>
+                <h:form id="formRetourner">
+                    <p:growl><p:autoUpdate/></p:growl>
+                    <p:dataTable value="#{retournerBean.listeRetour}" id="typeretourTable" var="item" rows="10" paginator="true"
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rowsPerPageTemplate="5,10,15" widgetVar="fournisseurTab" editable="true" style="margin-bottom:20px"
+                                 emptyMessage="No type retour found with given criteria">
+                        <p:ajax event="rowEdit" listener="#{retournerBean.updateType}"/>
+                        <p:ajax event="rowEditCancel" listener="#{retournerBean.cancelledType()}" />
+                        <f:facet name="header">
+                            Liste de types retour
+
+                            <p:commandButton id="toggler" type="button" value="Columns" style="float:right" icon="ui-icon-calculator" />
+                            <p:columnToggler datasource="typeretourTable" trigger="toggler" />
+                        </f:facet>
+                        <p:column sortBy="#{item.idtyperetour}" filterBy="#{item.idtyperetour}">
+                            <f:facet name="header">
+                                <h:outputText value="Id type retour"/>
+                            </f:facet>
+                            <h:outputText value="#{item.idtyperetour}"/>
+                        </p:column>
+                        <p:column sortBy="#{item.libelletyperetour}" filterBy="#{item.libelletyperetour}">
+                            <f:facet name="header">
+                                <h:outputText value="libelle Type Retour"/>
+                            </f:facet>
+                            <p:cellEditor>
+                                <f:facet name="output"><h:outputText value="#{item.libelletyperetour}" /></f:facet>
+                                <f:facet name="input"><p:inputText value="#{item.libelletyperetour}" style="width:100%"/></f:facet>
+                            </p:cellEditor> 
+                        </p:column>
+                        <p:column style="width:32px">
+                            <p:rowEditor />
+                        </p:column>
+                        <p:column style="width:32px;text-align: center">
+                            <p:commandButton update=":formRetourner"  oncomplete="PF('retournerDialog').show()" icon="ui-icon-search" title="View">
+                                <f:setPropertyActionListener value="#{item}" target="#{retournerBean.selectedType}" />
+                            </p:commandButton>
+                        </p:column>
+                        <p:column style="width:32px;text-align: center">
+                            <p:commandButton actionListener="#{retournerBean.deleteType(item)}" icon="ui-icon-close" update=":formRetourner">
+                                <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert" />
+                            </p:commandButton>
+
+                            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                                <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                                <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                            </p:confirmDialog>
+                        </p:column>
+                        <f:facet name="footer">
+                            <p:commandButton value="nouveau" oncomplete="PF('typeretournewDialog').show()"/>
+                            <p:commandButton value="View" action="#" disabled="#{not empty structureBean.selectedtype}"/>
+                            <p:commandButton value="supprimer" action="#"/>
+                        </f:facet>
+                    </p:dataTable>
+                    <p:dialog header="type retour Info" widgetVar="retournerDialog" modal="false" showEffect="fade" hideEffect="fade" resizable="false">
+                        <p:outputPanel id="retournerDetail" style="text-align:center;">
+                            <p:panelGrid  columns="2" rendered="#{not empty retournerBean.selectedType}" columnClasses="label,value">
+
+                                <h:outputText value="id type retour:" />
+                                <h:outputText value="#{retournerBean.selectedType.idtyperetour}" />
+
+                                <h:outputText value="libelle type retour" />
+                                <h:outputText value="#{retournerBean.selectedType.libelletyperetour}" />
+
+                                <h:outputText value="cree le" />
+                                <h:outputText value="#{retournerBean.selectedType.creele}"/>
+
+                                <h:outputText value="cree par" />
+                                <h:outputText value="#{retournerBean.selectedType.creepar}"/>
+
+                                <h:outputText value="modifier le" />
+                                <h:outputText value="#{retournerBean.selectedType.modifiele}"/>
+                                <h:outputText value="modifie par" />
+                                <h:outputText value="#{retournerBean.selectedType.modifiepar}"/>
+                            </p:panelGrid>
+                        </p:outputPanel>
+                    </p:dialog>
+                </h:form>   
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
+
+

@@ -1,0 +1,103 @@
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui">
+    <p:dialog appendTo="@(body)" header="création de type structure" widgetVar="typestructurenewDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+        <h:form>
+            <p:growl><p:autoUpdate/></p:growl>
+            <p:panelGrid columns="2">
+                <p:outputLabel value="id type structure:" for="idtypestruct" />
+                <p:inputText id="idtypestruct" value="#{structureBean.ts.idtypestruct}" title="idtypestruct" />
+                <p:outputLabel value="libelle type structure:" for="libelletypestruct" />
+                <p:inputText id="libelletypestruct" value="#{structureBean.ts.libelletypestruct}" title="libelletypestruct" />
+                <f:facet name="footer">
+                    <p:commandButton update=":formtypemag" value="save" action="#{structureBean.createTypestructure()}"/>
+                </f:facet>
+            </p:panelGrid>
+        </h:form>
+    </p:dialog>
+    <p:dialog appendTo="@(body)" header="liste de type structure" widgetVar="typestructureDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+        <h:form id="formtypemag">
+            <p:growl><p:autoUpdate/></p:growl>
+            <p:dataTable value="#{structureBean.listeTypestructures}" id="typemagTable" var="item" rows="10" paginator="true"
+                         paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                         rowsPerPageTemplate="5,10,15" widgetVar="typemagTab" editable="true" style="margin-bottom:20px"
+                         emptyMessage="No type structure found with given criteria">
+                <p:ajax event="rowEdit" listener="#{structureBean.updateTypestructure}"/>
+                <p:ajax event="rowEditCancel" listener="#{structureBean.cancelledTypestructure()}"/>                 
+                <f:facet name="header">
+                    Liste de types de structure
+
+                    <p:commandButton id="toggler" type="button" value="Columns" style="float:right" icon="ui-icon-calculator" />
+                    <p:columnToggler datasource="typemagTable" trigger="toggler" />
+                </f:facet>
+                <p:column sortBy="#{item.idtypestruct}" filterBy="#{item.idtypestruct}">
+
+                    <f:facet name="header">
+                        <h:outputText value="Id type structure"/>
+                    </f:facet>
+                    <h:outputText value="#{item.idtypestruct}"/>
+                </p:column>
+                <p:column sortBy="#{item.libelletypestruct}" filterBy="#{item.libelletypestruct}">
+                    <f:facet name="header">
+                        <h:outputText value="libelle type structure"/>
+                    </f:facet>
+                    <p:cellEditor>
+                        <f:facet name="output"><h:outputText value="#{item.libelletypestruct}" /></f:facet>
+                        <f:facet name="input"><p:inputText value="#{item.libelletypestruct}" style="width:100%"/></f:facet>
+                    </p:cellEditor>
+                </p:column>
+                <p:column style="width:32px" >
+                    <p:rowEditor />
+                </p:column>
+                <p:column style="width:32px;text-align: center">
+                    <p:commandButton update=":typemagDetail"  oncomplete="PF('typemagDialog').show()" icon="ui-icon-search" title="View">
+                        <f:setPropertyActionListener value="#{item}" target="#{structureBean.selectedtype}" />
+                    </p:commandButton>
+                </p:column>
+                <p:column style="width:32px;text-align: center">
+                    <p:commandButton actionListener="#{structureBean.deleteTypestructure(item)}" icon="ui-icon-close" update=":formtypemag:typemagTable">
+                        <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert" />
+                    </p:commandButton>
+
+                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                        <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                        <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                    </p:confirmDialog>
+                </p:column>
+                <f:facet name="footer">
+                    <p:commandButton value="nouveau" oncomplete="PF('typestructurenewDialog').show()"/>
+                    <p:commandButton value="View" action="#" disabled="#{empty structureBean.selectedtype}"/>
+                    <p:commandButton value="supprimer" action="#"  disabled="#{empty structureBean.selectedtype}"/>
+                </f:facet>
+            </p:dataTable>
+        </h:form>
+    </p:dialog>
+    <p:dialog appendTo="@(body)" header="type structure Info" widgetVar="typemagDialog"  modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+        <h:form id="typemagDetail" >
+            <p:outputPanel style="text-align:center;">
+                <p:panelGrid  columns="2" rendered="#{not empty structureBean.selectedtype}" columnClasses="label,value">
+
+                    <h:outputText value="id type structure:" />
+                    <h:outputText value="#{structureBean.selectedtype.idtypestruct}" />
+
+                    <h:outputText value="libelle type structure" />
+                    <h:outputText value="#{structureBean.selectedtype.libelletypestruct}" />
+
+                    <h:outputText value="cree le" />
+                    <h:outputText value="#{structureBean.selectedtype.creele}"/>
+
+                    <h:outputText value="cree par" />
+                    <h:outputText value="#{structureBean.selectedtype.creepar}"/>
+
+                    <h:outputText value="modifier le" />
+                    <h:outputText value="#{structureBean.selectedtype.modifiele}"/>
+                    <h:outputText value="modifie par" />
+                    <h:outputText value="#{structureBean.selectedtype.modifiepar}"/>
+                </p:panelGrid>
+            </p:outputPanel>
+        </h:form>
+    </p:dialog>
+</ui:composition>

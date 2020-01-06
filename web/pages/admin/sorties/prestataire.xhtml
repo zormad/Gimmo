@@ -1,0 +1,156 @@
+
+<ui:composition  xmlns="http://www.w3.org/1999/xhtml"
+                 xmlns:h="http://xmlns.jcp.org/jsf/html"
+                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                 xmlns:p="http://primefaces.org/ui"
+                 xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <p:dialog appendTo="@(body)" header="création de prestataire" widgetVar="prestatairenewDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+        <h:form id="createPrestataire">
+            <p:growl><p:autoUpdate/></p:growl>
+            <p:panelGrid columns="2">
+                <p:outputLabel value="Libelle prestataire:" for="libellePrestataire" />
+                <p:inputText id="libellePrestataire" value="#{prestataireBean.prestataire.libelleprestataire}" title="Libellefournisseur" />
+                <p:outputLabel value="Adresse:" for="adresse" />
+                <p:inputText id="adresse" value="#{prestataireBean.prestataire.adresse}" title="Adresse" />
+                <p:outputLabel value="Tel:" for="tel" />
+                <p:inputText id="tel" value="#{prestataireBean.prestataire.tel}" title="Tel" />
+                <p:outputLabel value="Fax:" for="fax" />
+                <p:inputText id="fax" value="#{prestataireBean.prestataire.fax}" title="Fax" />
+                <p:outputLabel value="Email:" for="email" />
+                <p:inputText id="email" value="#{prestataireBean.prestataire.email}" title="Email" />
+                <f:facet name="footer">
+                    <p:commandButton value="save" action="#{prestataireBean.create()}" update=":createPrestataire,:formprestataire,@widgetVar(prestatairenewDialog)" />
+                </f:facet>
+            </p:panelGrid>
+        </h:form>
+    </p:dialog>
+    <p:dialog appendTo="@(body)" header=" Liste de prestataire" widgetVar="prestataireDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+        <h:form id="formprestataire">
+            <p:growl><p:autoUpdate/></p:growl>
+            <p:dataTable value="#{prestataireBean.liste}" id="prestataireTable" var="item" rows="10" paginator="true"
+                         paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                         rowsPerPageTemplate="5,10,15" widgetVar="prestataireTab" editable="true" style="margin-bottom:20px"
+                         emptyMessage="No prestataire found with given criteria">
+                <p:ajax event="rowEdit" listener="#{prestataireBean.update}"/>
+                <p:ajax event="rowEditCancel" listener="#{prestataireBean.cancelled()}" />
+                <f:facet name="header">
+                    <p:commandButton id="toggler" type="button" value="Columns" style="float:right" icon="ui-icon-calculator" />
+                    <p:columnToggler datasource="prestataireTable" trigger="toggler" />
+                </f:facet>
+                <p:column sortBy="#{item.idprestataire}" filterBy="#{item.idprestataire}">
+                    <f:facet name="header">
+                        <h:outputText value="Id prestataire"/>
+                    </f:facet>
+                    <h:outputText value="#{item.idprestataire}"/>
+                </p:column>
+                <p:column sortBy="#{item.libelleprestataire}" filterBy="#{item.libelleprestataire}">
+                    <f:facet name="header">
+                        <h:outputText value="libelle prestataire"/>
+                    </f:facet>
+                    <p:cellEditor>
+                        <f:facet name="output"><h:outputText value="#{item.libelleprestataire}" /></f:facet>
+                        <f:facet name="input"><p:inputText value="#{item.libelleprestataire}" style="width:100%"/></f:facet>
+                    </p:cellEditor> 
+                </p:column>
+                <p:column>
+                    <f:facet name="header">
+                        <h:outputText value="Adresse"/>
+                    </f:facet>
+                    <p:cellEditor>
+                        <f:facet name="output"><h:outputText value="#{item.adresse}" /></f:facet>
+                        <f:facet name="input"><p:inputText value="#{item.adresse}" style="width:100%"/></f:facet>
+                    </p:cellEditor> 
+                </p:column>
+                <p:column>
+                    <f:facet name="header">
+                        <h:outputText value="Tel"/>
+                    </f:facet>
+                    <p:cellEditor>
+                        <f:facet name="output"><h:outputText value="#{item.tel}" /></f:facet>
+                        <f:facet name="input"><p:inputText value="#{item.tel}" style="width:100%"/></f:facet>
+                    </p:cellEditor> 
+                </p:column>
+                <p:column>
+                    <f:facet name="header">
+                        <h:outputText value="Fax"/>
+                    </f:facet>
+                    <p:cellEditor>
+                        <f:facet name="output"><h:outputText value="#{item.fax}" /></f:facet>
+                        <f:facet name="input"><p:inputText value="#{item.fax}" style="width:100%"/></f:facet>
+                    </p:cellEditor> 
+                </p:column>
+                <p:column>
+                    <f:facet name="header">
+                        <h:outputText value="Email"/>
+                    </f:facet>
+                    <p:cellEditor>
+                        <f:facet name="output"><h:outputText value="#{item.email}" /></f:facet>
+                        <f:facet name="input"><p:inputText value="#{item.email}" style="width:100%"/></f:facet>
+                    </p:cellEditor> 
+                </p:column>
+
+                <p:column style="width:32px">
+                    <p:rowEditor />
+                </p:column>
+                <p:column style="width:32px;text-align: center">
+                    <p:commandButton update=":prestataireDetail"  oncomplete="PF('prestataireIDialog').show()" icon="ui-icon-search" title="View">
+                        <f:setPropertyActionListener value="#{item}" target="#{prestataireBean.selectedPrestataire}" />
+                    </p:commandButton>
+                </p:column>
+                <p:column style="width:32px;text-align: center">
+                    <p:commandButton actionListener="#{prestataireBean.delete(item)}" icon="ui-icon-close" update=":formprestataire">
+                        <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert" />
+                    </p:commandButton>
+
+                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                        <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                        <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                    </p:confirmDialog>
+                </p:column>
+                <f:facet name="footer">
+                    <p:commandButton value="nouveau" oncomplete="PF('prestatairenewDialog').show()"/>
+                 </f:facet>
+            </p:dataTable>
+        </h:form>
+    </p:dialog>
+    <p:dialog appendTo="@(body)" header="prestataire Info" widgetVar="prestataireIDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+        <h:form id="prestataireDetail">
+            <p:outputPanel  style="text-align:center;">
+                <p:panelGrid  columns="2" rendered="#{not empty prestataireBean.selectedPrestataire}" columnClasses="label,value">
+
+                    <h:outputText value="id prestataire:" />
+                    <h:outputText value="#{prestataireBean.selectedPrestataire.idprestataire}" />
+
+                    <h:outputText value="libelle prestataire" />
+                    <h:outputText value="#{prestataireBean.selectedPrestataire.libelleprestataire}" />
+
+                    <h:outputText value="téléphone:" />
+                    <h:outputText value="#{prestataireBean.selectedPrestataire.tel}" />
+
+                    <h:outputText value="email:" />
+                    <h:outputText value="#{prestataireBean.selectedPrestataire.email}" />
+
+
+                    <h:outputText value="adresse:" />
+                    <h:outputText value="#{prestataireBean.selectedPrestataire.adresse}" />
+
+                    <h:outputText value="fax:" />
+                    <h:outputText value="#{prestataireBean.selectedPrestataire.fax}" />
+
+
+
+                    <h:outputText value="cree le" />
+                    <h:outputText value="#{prestataireBean.selectedPrestataire.creele}"/>
+
+                    <h:outputText value="cree par" />
+                    <h:outputText value="#{prestataireBean.selectedPrestataire.creepar}"/>
+
+                    <h:outputText value="modifier le" />
+                    <h:outputText value="#{prestataireBean.selectedPrestataire.modifiele}"/>
+                    <h:outputText value="modifie par" />
+                    <h:outputText value="#{prestataireBean.selectedPrestataire.modifiepar}"/>
+                </p:panelGrid>
+            </p:outputPanel>
+        </h:form>
+    </p:dialog>
+</ui:composition>

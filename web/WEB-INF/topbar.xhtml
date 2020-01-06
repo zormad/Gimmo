@@ -1,0 +1,38 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui">
+    <h:form id="top">
+        <div class="ui-g">
+            <div class="ui-g-6 ui-md-2">
+                <p:link outcome="/pages/admin/home.xhtml">
+                    <p:graphicImage id="homepage" name="images/logo.png"  style="width:80%"/>
+                </p:link>
+            </div>
+            <div class="ui-g-6 ui-md-6"><h5>Système de gestion des immobilisations du tésor public </h5></div>
+            <div class="ui-g-6 ui-md-4">
+                <p:menuButton value="notification" icon="fa fa-bell" >
+                    <p:menuitem value="demande de dotation (#{dotationBean.listeDemandes.size()})" url="/pages/admin/dotation/listeDemandes.xhtml"/>
+                </p:menuButton>
+                <p:menuButton value="#{utilisateurBean.user().loginuser}" icon="fa fa-user">
+                    <p:menuitem action="#{utilisateurBean.logout()}" icon="fa fa-sign-out" value="deconnecter"/> 
+                    <p:menuitem value="changer de mot de passe" oncomplete="PF('changermotdepasse').show()"/>
+                </p:menuButton>
+            </div> 
+        </div>
+    </h:form>   
+    <p:dialog appendTo="@(body)" header="changer de mot de passe" widgetVar="changermotdepasse" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+        <h:form>
+            <p:growl><p:autoUpdate/></p:growl>
+            <p:panelGrid columns="2">
+                <p:outputLabel value="ancien mot de passe" for="ancien"/>
+                <p:password value="#{loginController.oldpasswd}" id="ancien" required="true" requiredMessage="champ obligatoire" />
+                <p:outputLabel value="nouveau mot de passe" for="nouveau"/>
+                <p:password match="cnouveau" value="#{loginController.passwd1}" id="nouveau" required="true" requiredMessage="champ obligatoire" feedback="true"/>
+                <p:outputLabel value="comfirmez le nouveau mot de passe" for="cnouveau"/>
+                <p:password value="#{loginController.passwd2}" id="cnouveau" required="true" requiredMessage="champ obligatoire" />
+                <f:facet name="footer">
+                    <p:commandButton value="Changer" actionListener="#{loginController.changePasswd()}"/>
+                </f:facet>
+            </p:panelGrid>
+        </h:form>
+    </p:dialog>
+</ui:composition>

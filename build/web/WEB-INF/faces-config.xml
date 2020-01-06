@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<faces-config version="2.2"
+              xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-facesconfig_2_2.xsd">
+
+    <navigation-rule>
+        <navigation-case>
+            <from-outcome>login</from-outcome>
+            <to-view-id>/login.xhtml</to-view-id>        
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>index</from-outcome>
+            <to-view-id>/pages/index.xhtml</to-view-id>        
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>admin</from-outcome>
+            <to-view-id>/pages/admin/home.xhtml</to-view-id>  
+            <redirect/>      
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>dotation</from-outcome>
+            <to-view-id>/pages/chargedotation/home.xhtml</to-view-id>        
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>csfm</from-outcome>
+            <to-view-id>/pages/csfm/home.xhtml</to-view-id>        
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>mgs</from-outcome>
+            <to-view-id>/pages/magasinier/home.xhtml</to-view-id>        
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>public</from-outcome>
+            <to-view-id>/pages/public/home.xhtml</to-view-id>        
+        </navigation-case>
+    </navigation-rule>
+    <application>
+        <resource-bundle>
+            <base-name>/Bundle</base-name>
+            <var>bundle</var>
+        </resource-bundle>
+    </application>
+</faces-config>

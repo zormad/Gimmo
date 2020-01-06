@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report name" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="b7df7d46-f58b-406c-b035-a56d5f25a29b">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="libellestructure" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select p.libellestructure, p.designation,p.quantite,b.dotation from view_previsions p inner join view_besoins b on b.designation = p.designation]]>
+	</queryString>
+	<field name="LIBELLESTRUCTURE" class="java.lang.String"/>
+	<field name="DESIGNATION" class="java.lang.String"/>
+	<field name="QUANTITE" class="java.math.BigDecimal"/>
+	<field name="DOTATION" class="java.math.BigDecimal"/>
+	<group name="structure group">
+		<groupExpression><![CDATA[$F{LIBELLESTRUCTURE}]]></groupExpression>
+		<groupHeader>
+			<band height="75">
+				<line>
+					<reportElement x="282" y="41" width="1" height="32" uuid="6287bd39-332c-404c-a387-66bdaab80b9e"/>
+				</line>
+				<line>
+					<reportElement x="-1" y="10" width="1" height="32" uuid="137da38c-a987-420a-bc1b-288eb87e4f2b"/>
+				</line>
+				<textField>
+					<reportElement x="174" y="20" width="339" height="20" uuid="2b9010c2-53de-489f-833b-d34b90f6029b"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{LIBELLESTRUCTURE}]]></textFieldExpression>
+				</textField>
+				<line>
+					<reportElement x="554" y="10" width="1" height="32" uuid="d3fcbe0c-ddf8-465b-be65-b86e352d94ff"/>
+				</line>
+				<line>
+					<reportElement x="-1" y="10" width="1" height="32" uuid="d52783da-e3b0-4398-80be-80aa13efa827"/>
+				</line>
+				<line>
+					<reportElement x="554" y="10" width="1" height="32" uuid="4cb02d83-9577-4a28-bd32-defa50909de5"/>
+				</line>
+				<line>
+					<reportElement x="-1" y="11" width="555" height="1" uuid="2f5fb70a-ac42-4412-931a-c1c8d91e3fe1"/>
+				</line>
+				<line>
+					<reportElement x="-1" y="41" width="1" height="33" uuid="d57d7175-d3e4-4446-a7d2-46357a8fff9d"/>
+				</line>
+				<line>
+					<reportElement x="-1" y="11" width="555" height="1" uuid="a2359769-17f7-4334-919d-3b83f8cd42a8"/>
+				</line>
+				<line>
+					<reportElement x="-1" y="40" width="555" height="1" uuid="87f6c2f0-1625-42e8-95d3-2bc233006ddd"/>
+				</line>
+				<line>
+					<reportElement x="554" y="10" width="1" height="20" uuid="6a18bfc4-8b96-4d7e-aa07-e8e8424c33a8"/>
+				</line>
+				<line>
+					<reportElement x="554" y="41" width="1" height="32" uuid="33ec9fc1-abff-41d0-9675-99d44412bf2d"/>
+				</line>
+				<staticText>
+					<reportElement x="20" y="53" width="249" height="20" uuid="9eae3d21-4d75-4573-971a-96574cd1f1fd"/>
+					<textElement textAlignment="Center"/>
+					<text><![CDATA[DESIGNATION]]></text>
+				</staticText>
+				<line>
+					<reportElement x="359" y="40" width="1" height="32" uuid="e76d5929-464c-48ff-b176-649f06798bcc"/>
+				</line>
+				<line>
+					<reportElement x="426" y="39" width="1" height="32" uuid="aa7310ae-8367-4b4c-8410-f28acd19b6cc"/>
+				</line>
+				<staticText>
+					<reportElement x="284" y="42" width="61" height="20" uuid="85c5a7fc-0d42-4567-a189-e3d1e8a28e4d"/>
+					<textElement textAlignment="Center"/>
+					<text><![CDATA[QUANTITE]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="360" y="42" width="66" height="20" uuid="8b7ea974-14d4-483e-89d6-558a527b6c1d"/>
+					<textElement textAlignment="Center"/>
+					<text><![CDATA[DOTATION]]></text>
+				</staticText>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="3">
+				<line>
+					<reportElement x="1" y="1" width="555" height="1" uuid="ae5a609c-4ca3-4562-9d58-01bc9e3f3c7e"/>
+				</line>
+				<line>
+					<reportElement x="1" y="1" width="555" height="1" uuid="54095520-af10-4035-b7e3-5a3fbed37a77"/>
+				</line>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="238" splitType="Stretch">
+			<staticText>
+				<reportElement x="345" y="165" width="100" height="20" uuid="26458595-528a-4ce5-b241-3e64f4d65076"/>
+				<text><![CDATA[OUAGADOUGOU, le]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="49" y="70" width="129" height="20" uuid="57a6446d-ff81-4829-b329-c28df69ae3f0"/>
+				<text><![CDATA[SECRETARIAT GENERAL]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="446" y="29" width="100" height="20" uuid="086e8dff-d26a-49a0-8ccd-3997496c172d"/>
+				<text><![CDATA[Unité-Progrès-Justice]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="32" y="130" width="192" height="20" uuid="25a3ec77-c7d3-4749-96d8-b6ef88986593"/>
+				<text><![CDATA[ DE LA COMPTABILITE PUBLIQUE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="6" width="224" height="20" uuid="804c73b9-cbef-46fe-80fd-f1182d73017d"/>
+				<text><![CDATA[MINISTERE DE L'ECONOMIE DES FINANCES]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="446" y="7" width="100" height="20" uuid="90982de2-cc2c-4b61-9241-b6dacddb4c37"/>
+				<textElement textAlignment="Justified">
+					<font size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
+				</textElement>
+				<text><![CDATA[BURKINA FASO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="32" y="174" width="192" height="20" uuid="45c08ebb-d6e8-42ba-895b-553cb2d9242c"/>
+				<text><![CDATA[SERVICE FINANCIER ET DU MATERIEL]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="44" y="26" width="145" height="20" uuid="4b6f6931-e7e3-4067-9835-d8617b8ab8f3"/>
+				<text><![CDATA[ET DU DEVELOPPEMENT]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="49" width="224" height="20" uuid="49c1b82e-fbc1-45ca-97e1-ed31e715e12e"/>
+				<text><![CDATA[=======================================]]></text>
+			</staticText>
+			<image>
+				<reportElement x="324" y="56" width="200" height="96" uuid="8e67e9d3-eec3-4844-85b6-cdc94358ce4a"/>
+				<imageExpression><![CDATA["C:\\Users\\HP-FOLIO\\Documents\\NetBeansProjects\\gimmo3\\web\\resources\\images\\logo.png"]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement x="20" y="152" width="224" height="20" uuid="dc864262-6602-48d0-81e4-e32c06fd4640"/>
+				<text><![CDATA[=======================================]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="88" width="224" height="20" uuid="f0c0f4f4-4421-46ae-b940-fb26fe3cc42a"/>
+				<text><![CDATA[=======================================]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="32" y="206" width="212" height="20" backcolor="#003333" uuid="43d3b125-3ee4-4a84-8ebf-4fc89c4ede51"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[état de repartition des équipements :]]></text>
+			</staticText>
+			<textField pattern="dd MMMMM yyyy">
+				<reportElement x="452" y="165" width="100" height="20" uuid="dc670308-b68a-4069-835b-fdb56faf3974"/>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="32" y="110" width="192" height="20" uuid="956b4f8a-a7c4-44aa-9d91-8eae3602913b"/>
+				<text><![CDATA[DIRECTION GENERAL DU TRESOR ET]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="259" y="206" width="287" height="20" uuid="a55005ab-33ce-4099-9007-31c977c1c029"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{libellestructure}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="33" splitType="Stretch">
+			<line>
+				<reportElement x="555" y="0" width="1" height="30" uuid="ac2a32ed-2c41-4a16-9445-fcc6b3cb7461"/>
+			</line>
+			<line>
+				<reportElement x="0" y="0" width="555" height="1" uuid="b6fb7d2a-e860-4125-a702-2782c6829710"/>
+			</line>
+			<line>
+				<reportElement x="283" y="1" width="1" height="29" uuid="ace597e3-2d87-47a1-b121-f0f70567b20a"/>
+			</line>
+			<line>
+				<reportElement x="0" y="0" width="1" height="30" uuid="411fa6f4-1296-41e6-bf0c-718e6a84313a"/>
+			</line>
+			<textField>
+				<reportElement x="20" y="1" width="249" height="20" uuid="df3782f7-ba59-4992-bdae-826f129f3059"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression><![CDATA[$F{DESIGNATION}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="359" y="0" width="1" height="29" uuid="2c396a36-fe43-4033-8d21-b76b71a437c3"/>
+			</line>
+			<line>
+				<reportElement x="426" y="0" width="1" height="29" uuid="5ee8b02f-d243-42fc-8e25-f693a21a1827"/>
+			</line>
+			<textField>
+				<reportElement x="284" y="1" width="61" height="20" uuid="5726957b-1490-450c-b8ed-424fcf24c1d8"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression><![CDATA[$F{QUANTITE}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="360" y="1" width="56" height="20" uuid="1aa9224e-5036-4d6e-b4f8-ca4e8ed660ce"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression><![CDATA[$F{DOTATION}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

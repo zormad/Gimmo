@@ -1,0 +1,164 @@
+<ui:composition  xmlns="http://www.w3.org/1999/xhtml"
+                 xmlns:h="http://xmlns.jcp.org/jsf/html"
+                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                 xmlns:p="http://primefaces.org/ui"
+                 xmlns:f="http://xmlns.jcp.org/jsf/core"
+                 xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+    <p:dialog appendTo="@(body)" header="liste des sorties pour répation et de mainténance" widgetVar="reparationListeDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+        <h:form id="wreparationListe">
+
+            <p:dataTable value="#{sortieBean.listeReparation}" id="sortieTable" var="item"  widgetVar="sortieTab" filteredValue="#{sortieBean.filteredsorties}"
+                         selectionMode="single" selection="#{sortieBean.selectedSortie}" rowKey="#{item.idsortie}" rows="10" paginator="true"
+                         paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                         rowsPerPageTemplate="5,10,15" style="margin-bottom:20px"
+                         emptyMessage="No sortie found with given criteria">
+                <p:ajax event="rowSelect" update=":wreparationsortis,:wreparationListe" listener="#{sortieBean.setCollection()}"/>
+                <p:ajax event="rowUnselect" update=":wreparationsortis,:wreparationListe" />
+                <f:facet name="header">
+                    Liste de sorties pour réparation ou/et mainténance
+                    <p:outputPanel>
+                        <h:outputText value="Search all fields:" />
+                        <p:inputText id="globalFilter" onkeyup="PF('sortieTab').filter()" style="width:300px" placeholder="Enter keyword"/>
+                    </p:outputPanel>
+                    <p:commandButton id="toggler" type="button" value="Columns" style="float:right" icon="ui-icon-calculator" />
+                    <p:columnToggler datasource="sortieTable" trigger="toggler" />
+                </f:facet>
+                <p:column sortBy="#{item.idsortie}">
+                    <f:facet name="header">
+                        <h:outputText value="Id de la sortie"/>
+                    </f:facet>
+                    <h:outputText value="#{item.idsortie}"/>
+                </p:column>
+                <p:column sortBy="#{item.libellesortie}">
+                    <f:facet name="header">
+                        <h:outputText value="Libelle de la sortie"/>
+                    </f:facet>
+                    <h:outputText value="#{item.libellesortie}"/>
+                </p:column>
+                <p:column >
+                    <f:facet name="header">
+                        <h:outputText value="Description de la  sortie"/>
+                    </f:facet>
+                    <h:outputText value="#{item.descriptionsortie}"/>
+                </p:column>
+                <p:column>
+                    <f:facet name="filter">
+                        <p:calendar pattern="MM/dd/yyyy HH:mm:ss" onchange=""/>
+                    </f:facet>
+                    <f:facet name="header">
+                        <h:outputText value="Date sortie"/>
+                    </f:facet>
+                    <h:outputText value="#{item.datesortie}">
+                        <f:convertDateTime pattern="MM/dd/yyyy HH:mm:ss" />
+                    </h:outputText>
+                </p:column>
+                <p:column>
+                    <f:facet name="header">
+                        <h:outputText value="Date prevue de retour"/>
+                    </f:facet>
+                    <f:facet name="filter">
+                        <p:calendar pattern="MM/dd/yyyy HH:mm:ss" onchange=""></p:calendar>
+                    </f:facet>
+                    <h:outputText value="#{item.dateprevuretour}">
+                        <f:convertDateTime pattern="MM/dd/yyyy HH:mm:ss" />
+                    </h:outputText>
+                </p:column>
+                <p:column>
+                    <f:facet name="header">
+                        <h:outputText value="prestataire"/>
+                    </f:facet>
+                    <h:outputText value="#{item.idprestataire.libelleprestataire}"/>
+                </p:column>
+                <f:facet name="footer">
+                    <c:if test="#{(sortieBean.selectedSortie.idtypesortie!=null) and (sortieBean.listeReparation.size()>0)}">
+                        <c:if test="#{sortieBean.type.idtypesortie=='repare'}">
+                            <p:commandButton value="APERCU" ajax="false" action="#{sortieBean.printPdfmaintenance()}"/>
+                        </c:if>
+                        <p:commandButton  update=":wreparationsortis" value="Equipements sortis" oncomplete="PF('reparationsortisDialog').show()">
+                            <f:ajax listener="#{sortieBean.resetSelectedEquipsorti()}"/>
+                        </p:commandButton>
+                        <p:commandButton  update=":wreparationListe" value="Valider" action="#{sortieBean.validerReparation()}" disabled="#{sortieBean.selectedSortie.dateretour!=null}"/>
+                    </c:if>  
+                </f:facet>
+            </p:dataTable>
+
+        </h:form>
+    </p:dialog>
+
+    <!--liste des equipements sortis -->
+    <p:dialog appendTo="@(body)" widgetVar="reparationsortisDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+
+        <h:form id="wreparationsortis">
+            <p:dataTable value="#{sortieBean.selectedSortie.equipementsortisCollection}" var="item" 
+                         rows="10" paginator="true"
+                         paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                         rowsPerPageTemplate="5,10,15" style="margin-bottom:20px"
+                         emptyMessage="pas d'équipements pour cette sortie" scrollable="true" selectionMode="single" selection="#{sortieBean.selectEquipementSorti}" rowKey="#{item.idequipsorti}">
+                <p:ajax event="rowSelect" update=":wreparationsortis,:wreparationEquipListe" listener="#{sortieBean.afterSelectReparation()}"/>
+                <p:ajax event="rowUnselect" update=":wreparationsortis,:wreparationEquipListe" />
+
+                <f:facet name="header">
+                    <h:outputText value="liste des equipements de la sortie #{sortieBean.selectedSortie.idsortie}"/>
+                </f:facet>
+                <p:column>
+                    <f:facet name="header">
+                        <h:outputText value="id de l'équipement"/>
+                    </f:facet>
+                    <h:outputText value="#{item.equipement.idequip}"/>
+                </p:column>
+                <p:column>
+                    <f:facet name="header">
+                        <h:outputText value="désignation de l'équipement"/>
+                    </f:facet>
+                    <h:outputText value="#{item.equipement.codearticle.designation}"/>
+                </p:column>
+                <p:column>
+                    <f:facet name="header">
+                        <h:outputText value="position"/>
+                    </f:facet>
+                    <h:outputText value="#{item.equipement.magasinActuel.nommagasin}"/>
+                    <h:outputText value="#{item.equipement.posteActuel.nomposte}"/>
+                </p:column>
+                <f:facet name="footer">
+                    <c:if test="#{(sortieBean.selectEquipementSorti.idequipsorti!=null) and (sortieBean.selectedSortie.equipementsortisCollection.size()>0)}">
+                        <p:commandButton  update=":wreparationEquipListe" value="Reparer" oncomplete="PF('reparationEquipListeDialog').show()"/>
+                    </c:if> 
+                </f:facet>
+            </p:dataTable>
+        </h:form>
+    </p:dialog> 
+
+    <p:dialog appendTo="@(body)" header="réparation de l'équipement #{sortieBean.selectEquipementSorti.equipement.idequip}  #{sortieBean.selectEquipementSorti.equipement.codearticle.designation}" widgetVar="reparationEquipListeDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+        <h:form>
+            <p:commandButton value="type d'interventions"  oncomplete="PF('listeinerventionsDialog').show()"/>
+        </h:form>
+        <h:form id="wreparationEquipListe">
+
+            <p:panelGrid columns="2">
+                <p:outputLabel value="interventions:" for="codetypeint" />
+                <p:selectOneMenu id="codetypeint" value="#{sortieBean.typeIntervention.codetypeint}" required="true" requiredMessage="The Codetypeint field is required.">
+                    <!-- TODO: update below reference to list of available items-->
+                    <f:selectItems value="#{sortieBean.listeinterventions}" var="interventions" itemLabel="#{interventions.libelletypeint}" itemValue="#{interventions.codetypeint}"/>
+                </p:selectOneMenu>
+                <p:outputLabel value="Description de la reparation:" for="descriptionreparation" />
+                <p:inputText id="descriptionreparation" value="#{sortieBean.reparation.descriptionreparation}" title="Descriptionreparation" />
+                <p:outputLabel value="Cout de la reparation:" for="coutreparation" />
+                <p:inputText id="coutreparation" value="#{sortieBean.reparation.coutreparation}" title="Coutreparation" />
+                <p:outputLabel value="Observation de la reparation:" for="observationreparation" />
+                <p:inputText id="observationreparation" value="#{sortieBean.reparation.observationreparation}" title="Observationreparation" />
+                <p:outputLabel value="Reparé:" for="repare" />
+                <p:selectBooleanCheckbox id="repare" value="#{sortieBean.repareB}" />
+                <p:outputLabel value="Incorporé:" for="incorpore" />
+                <p:selectBooleanCheckbox id="incorpore" value="#{sortieBean.incorporeB}" />
+                <f:facet name="footer">
+                    <c:if test="#{sortieBean.reparation.idreparation==null}">
+                        <p:commandButton value="Valider" action="#{sortieBean.createReparation()}" disabled="#{sortieBean.selectedSortie.dateretour!=null}"/>
+                    </c:if>
+                    <c:if test="#{sortieBean.reparation.idreparation!=null}">
+                        <p:commandButton value="Modifier" action="#{sortieBean.updateReparation()}" disabled="#{sortieBean.selectedSortie.dateretour!=null}"/>
+                    </c:if>
+                </f:facet>
+            </p:panelGrid>
+        </h:form>
+    </p:dialog>
+</ui:composition>

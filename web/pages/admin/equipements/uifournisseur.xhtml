@@ -1,0 +1,165 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>Facelet Title</title>
+    </h:head>
+    <h:body><ui:composition template="../template.xhtml">
+            <ui:define name="content">
+                <p:dialog appendTo="@(body)" header="création de fournisseur" widgetVar="fournisseurnewDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                    <h:form>
+                        <p:growl><p:autoUpdate/></p:growl>
+                        <p:panelGrid columns="2">
+                            <p:outputLabel value="Libelle fournisseur:" for="libellefournisseur" />
+                            <p:inputText id="libellefournisseur" value="#{fournisseurBean.fournisseur.libellefournisseur}" title="Libellefournisseur" />
+                            <p:outputLabel value="Adresse:" for="adresse" />
+                            <p:inputText id="adresse" value="#{fournisseurBean.fournisseur.adresse}" title="Adresse" />
+                            <p:outputLabel value="Tel:" for="tel" />
+                            <p:inputText id="tel" value="#{fournisseurBean.fournisseur.tel}" title="Tel" />
+                            <p:outputLabel value="Fax:" for="fax" />
+                            <p:inputText id="fax" value="#{fournisseurBean.fournisseur.fax}" title="Fax" />
+                            <p:outputLabel value="Email:" for="email" />
+                            <p:inputText id="email" value="#{fournisseurBean.fournisseur.email}" title="Email" />
+                            <f:facet name="footer">
+                                <p:commandButton value="save" action="#{fournisseurBean.create()}" update="formfournisseur"/>
+                            </f:facet>
+                        </p:panelGrid>
+                    </h:form>
+                </p:dialog>
+                <h:form id="formfournisseur">
+                    <p:growl><p:autoUpdate/></p:growl>
+                    <p:dataTable value="#{fournisseurBean.liste}" id="fournisseurTable" var="item" rows="10" paginator="true"
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rowsPerPageTemplate="5,10,15" widgetVar="fournisseurTab" editable="true" style="margin-bottom:20px"
+                                 emptyMessage="No fournisseur found with given criteria">
+                        <p:ajax event="rowEdit" listener="#{fournisseurBean.update}"/>
+                        <p:ajax event="rowEditCancel" listener="#{fournisseurBean.cancelled()}" />
+                        <f:facet name="header">
+                            Liste de fournisseurs
+
+                            <p:commandButton id="toggler" type="button" value="Columns" style="float:right" icon="ui-icon-calculator" />
+                            <p:columnToggler datasource="fournisseurTable" trigger="toggler" />
+                        </f:facet>
+                        <p:column sortBy="#{item.idfournisseur}" filterBy="#{item.idfournisseur}">
+                            <f:facet name="header">
+                                <h:outputText value="Id fournisseur"/>
+                            </f:facet>
+                            <h:outputText value="#{item.idfournisseur}"/>
+                        </p:column>
+                        <p:column sortBy="#{item.libellefournisseur}" filterBy="#{item.libellefournisseur}">
+                            <f:facet name="header">
+                                <h:outputText value="libelle fournisseur"/>
+                            </f:facet>
+                            <p:cellEditor>
+                                <f:facet name="output"><h:outputText value="#{item.libellefournisseur}" /></f:facet>
+                                <f:facet name="input"><p:inputText value="#{item.libellefournisseur}" style="width:100%"/></f:facet>
+                            </p:cellEditor> 
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="Adresse"/>
+                            </f:facet>
+                            <p:cellEditor>
+                                <f:facet name="output"><h:outputText value="#{item.adresse}" /></f:facet>
+                                <f:facet name="input"><p:inputText value="#{item.adresse}" style="width:100%"/></f:facet>
+                            </p:cellEditor> 
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="Tel"/>
+                            </f:facet>
+                            <p:cellEditor>
+                                <f:facet name="output"><h:outputText value="#{item.tel}" /></f:facet>
+                                <f:facet name="input"><p:inputText value="#{item.tel}" style="width:100%"/></f:facet>
+                            </p:cellEditor> 
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="Fax"/>
+                            </f:facet>
+                            <p:cellEditor>
+                                <f:facet name="output"><h:outputText value="#{item.fax}" /></f:facet>
+                                <f:facet name="input"><p:inputText value="#{item.fax}" style="width:100%"/></f:facet>
+                            </p:cellEditor> 
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="Email"/>
+                            </f:facet>
+                            <p:cellEditor>
+                                <f:facet name="output"><h:outputText value="#{item.email}" /></f:facet>
+                                <f:facet name="input"><p:inputText value="#{item.email}" style="width:100%"/></f:facet>
+                            </p:cellEditor> 
+                        </p:column>
+
+                        <p:column style="width:32px">
+                            <p:rowEditor />
+                        </p:column>
+                        <p:column style="width:32px;text-align: center">
+                            <p:commandButton update=":formfournisseur:fournisseurDetail"  oncomplete="PF('fournisseurDialog').show()" icon="ui-icon-search" title="View">
+                                <f:setPropertyActionListener value="#{item}" target="#{fournisseurBean.selectedFournisseur}" />
+                            </p:commandButton>
+                        </p:column>
+                        <p:column style="width:32px;text-align: center">
+                            <p:commandButton actionListener="#{fournisseurBean.delete(item)}" icon="ui-icon-close" update=":formfournisseur:fournisseurTable">
+                                <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert" />
+                            </p:commandButton>
+
+                            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                                <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                                <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                            </p:confirmDialog>
+                        </p:column>
+                        <f:facet name="footer">
+                            <p:commandButton value="nouveau" oncomplete="PF('fournisseurnewDialog').show()"/>
+                        </f:facet>
+                    </p:dataTable>
+                    <p:dialog header="fournisseur Info" widgetVar="fournisseurDialog" modal="false" showEffect="fade" hideEffect="fade" resizable="false">
+                        <p:outputPanel id="fournisseurDetail" style="text-align:center;">
+                            <p:panelGrid  columns="2" rendered="#{not empty fournisseurBean.selectedFournisseur}" columnClasses="label,value">
+
+                                <h:outputText value="id fournisseur:" />
+                                <h:outputText value="#{fournisseurBean.selectedFournisseur.idfournisseur}" />
+
+                                <h:outputText value="libelle fournisseur" />
+                                <h:outputText value="#{fournisseurBean.selectedFournisseur.libellefournisseur}" />
+
+                                <h:outputText value="téléphone:" />
+                                <h:outputText value="#{fournisseurBean.selectedFournisseur.tel}" />
+
+                                <h:outputText value="email:" />
+                                <h:outputText value="#{fournisseurBean.selectedFournisseur.email}" />
+
+
+                                <h:outputText value="adresse:" />
+                                <h:outputText value="#{fournisseurBean.selectedFournisseur.adresse}" />
+
+                                <h:outputText value="fax:" />
+                                <h:outputText value="#{fournisseurBean.selectedFournisseur.fax}" />
+
+
+
+                                <h:outputText value="cree le" />
+                                <h:outputText value="#{fournisseurBean.selectedFournisseur.creele}"/>
+
+                                <h:outputText value="cree par" />
+                                <h:outputText value="#{fournisseurBean.selectedFournisseur.creepar}"/>
+
+                                <h:outputText value="modifier le" />
+                                <h:outputText value="#{fournisseurBean.selectedFournisseur.modifiele}"/>
+                                <h:outputText value="modifie par" />
+                                <h:outputText value="#{fournisseurBean.selectedFournisseur.modifiepar}"/>
+                            </p:panelGrid>
+                        </p:outputPanel>
+                    </p:dialog>
+                </h:form>
+
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
+

@@ -1,0 +1,172 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>Facelet Title</title>
+    </h:head>
+    <h:body>
+        <ui:composition template="../template.xhtml">
+            <ui:define name="content">
+                <ui:include src="categorie.xhtml"/>
+                <h:form>
+                    <p:commandButton value="catégories" oncomplete="PF('categorieDialog').show()"/>
+                    <p:commandButton value="affectation de categorie" oncomplete="PF('categorieDialog').show()"/>
+                </h:form>
+                <p:dialog appendTo="@(body)" header="création d'agents" widgetVar="agentnewDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                    <h:form>
+                        <p:growl><p:autoUpdate/></p:growl>
+                        <p:panelGrid columns="2">
+                            <p:outputLabel value="Matricule:" for="matricule" />
+                            <p:inputText id="matricule" value="#{agentBean.agent.matricule}" title="Matricule" />
+                            <p:outputLabel value="Nom:" for="nom" />
+                            <p:inputText id="nom" value="#{agentBean.agent.nom}" title="Nom" />
+                            <p:outputLabel value="Prenom:" for="prenom" />
+                            <p:inputText id="prenom" value="#{agentBean.agent.prenom}" title="Prenom" />
+                            <p:outputLabel value="Sexe:" for="sexe" />
+                            <p:inputText id="sexe" value="#{agentBean.agent.sexe}" title="Sexe" />
+                            <p:outputLabel value="Datenaissance:" for="datenaissance" />
+                            <p:calendar id="datenaissance" value="#{agentBean.agent.datenaissance}" title="Datenaissance" >
+                                <f:convertDateTime pattern="MM/dd/yyyy HH:mm:ss" />
+                            </p:calendar>
+                            <p:outputLabel value="Telephone:" for="telagent" />
+                            <p:inputText id="telagent" value="#{agentBean.agent.telagent}" title="Telagent" />
+                            <f:facet name="footer">
+                                <p:commandButton value="save" action="#{agentBean.create()}" update=":form"/>
+                            </f:facet>
+                        </p:panelGrid>
+                    </h:form>
+                </p:dialog>
+
+                <h:form id="form">
+                    <p:growl id="growl"><p:autoUpdate/></p:growl>
+                    <p:dataTable value="#{agentBean.liste}" var="item" id="agentTable" rows="10" paginator="true"
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rowsPerPageTemplate="5,10,15" widgetVar="agentTab" editable="true" style="margin-bottom:20px"
+                                 emptyMessage="No agent found with given criteria" scrollable="true" selectionMode="single" selection="#{agentBean.agentSelected}" rowKey="#{item.idagent}">
+                        <p:ajax event="rowEdit" listener="#{agentBean.update}"/>
+                        <p:ajax event="rowEditCancel" listener="#{agentBean.cancelled()}" />
+                        <f:facet name="header">
+                            Liste d'agents
+
+                            <p:commandButton id="toggler" type="button" value="Columns" style="float:right" icon="ui-icon-calculator" />
+                            <p:columnToggler datasource="agentTable" trigger="toggler" />
+                        </f:facet>
+                        <p:column sortBy="#{item.idagent}" filterBy="#{item.idagent}">
+                            <f:facet name="header">
+                                <h:outputText value="Idagent"/>
+                            </f:facet>
+                            <h:outputText value="#{item.idagent}"/>
+                        </p:column>
+                        <p:column sortBy="#{item.matricule}" filterBy="#{item.matricule}">
+                            <f:facet name="header">
+                                <h:outputText value="Matricule"/>
+                            </f:facet>
+                            <h:outputText value="#{item.matricule}"/>
+                        </p:column>
+                        <p:column headerText="Nom" sortBy="#{item.nom}" filterBy="#{item.nom}">
+                            <p:cellEditor>
+                                <f:facet name="output"><h:outputText value="#{item.nom}" /></f:facet>
+                                <f:facet name="input"><p:inputText value="#{item.nom}" style="width:100%"/></f:facet>
+                            </p:cellEditor>
+                        </p:column>
+                        <p:column headerText="Prenom" sortBy="#{item.prenom}" filterBy="#{item.prenom}">
+                            <p:cellEditor>
+                                <f:facet name="output"><h:outputText value="#{item.prenom}" /></f:facet>
+                                <f:facet name="input"><p:inputText value="#{item.prenom}" style="width:100%"/></f:facet>
+                            </p:cellEditor>
+                        </p:column>
+                        <p:column headerText="Sexe">
+                            <p:cellEditor>
+                                <f:facet name="output"><h:outputText value="#{item.sexe}" /></f:facet>
+                                <f:facet name="input"><p:inputText value="#{item.sexe}" style="width:100%"/></f:facet>
+                            </p:cellEditor>
+                        </p:column>
+                        <p:column headerText="Date de naissance">
+                            <p:cellEditor>
+                                <f:facet name="output"><h:outputText value="#{item.datenaissance}" /></f:facet>
+                                <f:facet name="input">
+                                    <p:calendar value="#{item.datenaissance}" style="width:100%">
+                                        <f:convertDateTime pattern="MM-dd-yyyy HH:mm:ss" />
+                                    </p:calendar>
+                                </f:facet>
+                            </p:cellEditor>
+                        </p:column>
+                        <p:column headerText="Telephone de l'agent">
+                            <p:cellEditor>
+                                <f:facet name="output"><h:outputText value="#{item.telagent}" /></f:facet>
+                                <f:facet name="input"><p:inputText value="#{item.telagent}" style="width:100%"/></f:facet>
+                            </p:cellEditor>
+                        </p:column>
+                        <p:column style="width:32px">
+                            <p:rowEditor />
+                        </p:column>
+                        <p:column style="width:32px;text-align: center">
+                            <p:commandButton update=":form:agentDetail"  oncomplete="PF('agentDialog').show()" icon="ui-icon-search" title="View">
+                                <f:setPropertyActionListener value="#{item}" target="#{agentBean.agentSelected}" />
+                            </p:commandButton>
+                        </p:column>
+                        <p:column style="width:32px;text-align: center">
+                            <p:commandButton actionListener="#{agentBean.delete(item)}" icon="ui-icon-close" update=":form:agentTable">
+                                <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert" />
+                            </p:commandButton>
+
+                            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                                <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                                <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                            </p:confirmDialog>
+                        </p:column>
+                        <f:facet name="footer">
+                            <p:commandButton value="nouveau" oncomplete="PF('agentnewDialog').show()"/>
+                        </f:facet>
+                    </p:dataTable>
+                    <p:contextMenu for="agentTable">
+                        <p:menuitem value="changer de categorie" oncomplete="PF('categorielisteDialog').show()"/>
+                    </p:contextMenu>
+                    <p:dialog header="agent Info" widgetVar="agentDialog" modal="false" showEffect="fade" hideEffect="fade" resizable="false">
+                        <p:outputPanel id="agentDetail" style="text-align:center;">
+                            <p:panelGrid  columns="2" rendered="#{not empty agentBean.agentSelected}" columnClasses="label,value">
+
+                                <h:outputText value="idagent" />
+                                <h:outputText value="#{agentBean.agentSelected.idagent}" />
+
+                                <h:outputText value="matricule" />
+                                <h:outputText value="#{agentBean.agentSelected.matricule}"/>
+
+                                <h:outputText value="nom" />
+                                <h:outputText value="#{agentBean.agentSelected.nom}" />
+                                <h:outputText value="sexe" />
+                                <h:outputText value="#{agentBean.agentSelected.sexe}" />
+
+                                <h:outputText value="prenom" />
+                                <h:outputText value="#{agentBean.agentSelected.prenom}"/>
+
+                                <h:outputText value="cree Le" />
+                                <h:outputText value="#{agentBean.agentSelected.creele}"/>
+
+                                <h:outputText value="cree Par" />
+                                <h:outputText value="#{agentBean.agentSelected.creepar}"/>
+
+                                <h:outputText value="modifier Le" />
+                                <h:outputText value="#{agentBean.agentSelected.modifierle}"/>
+
+                                <h:outputText value="modifie Par" />
+                                <h:outputText value="#{agentBean.agentSelected.modifierpar}"/>
+                                <h:outputText value="responsable structure" />
+                                <h:outputText value="#{agentBean.agentSelected.codestructure}"/>
+
+                                <h:outputText value="responsable service" />
+                                <h:outputText value="#{agentBean.agentSelected.service}"/>
+                            </p:panelGrid>
+                        </p:outputPanel>
+                    </p:dialog>
+                </h:form>
+
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
+

@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+    <h:head>
+        <title>Facelet Title</title>
+    </h:head>
+    <h:body>
+        <ui:composition template="../template.xhtml">
+            <ui:define name="content">
+                <h:form id="journalDeMouvement">
+                    <p:panelGrid columns="2">
+                        <p:outputLabel for="choix" value="choix du type de journal "/>
+                        <p:selectOneMenu id="choix" value="#{journalMouvement.choix}">
+                            <p:ajax update="@form"/>
+                            <f:selectItem itemLabel="selectionnez un" itemValue=""/>
+                            <f:selectItem itemLabel="Affectation" itemValue="affectation"/>
+                            <f:selectItem itemLabel="Dotation" itemValue="dotation"/>
+                            <f:selectItem itemLabel="Restitution" itemValue="restitution"/>
+                            <f:selectItem itemLabel="Sortie Maintenance/Rèparation" itemValue="maintenance"/>
+                            <f:selectItem itemLabel="Mise en rebus" itemValue="rebus"/>
+                            <f:selectItem itemLabel="Sortie en mission" itemValue="mission"/>
+                        </p:selectOneMenu>
+                        <c:if test="#{(journalMouvement.choix=='affectation') or (journalMouvement.choix=='restitution') }">
+                            <p:outputLabel value="Structure" for="structure"/>
+                            <p:selectOneMenu id="structure" value="#{journalMouvement.structure.codestructure}">
+                                <f:ajax listener="#{journalMouvement.changeValues()}" render=":journalDeMouvement"/>
+                                <f:selectItem itemLabel="Select One" itemValue=""/>
+                                <f:selectItems value="#{journalMouvement.listeStructure}" var="st" itemLabel="#{st.libellestructure}" itemValue="#{st.codestructure}"/>
+                            </p:selectOneMenu>
+                            <p:outputLabel value="Magasin" for="magasin"/>
+                            <p:outputLabel value="#{journalMouvement.magasin.nommagasin}" id="magasin"/>
+                        </c:if>
+                        <f:facet name="footer">
+                            <p:commandButton rendered="#{(journalMouvement.choix=='affectation') and (journalMouvement.magasin.idcodemagasin!=null)}" value="journal d'affectation" ajax="false" action="#{journalMouvement.printPdfJournalAffectation()}"/>
+                            <p:commandButton rendered="#{journalMouvement.choix=='dotation'}" value="journal de dotation" ajax="false" action="#{journalMouvement.printPdfJournalDotation()}"/>
+                            <p:commandButton rendered="#{(journalMouvement.choix=='restitution') and (journalMouvement.magasin.idcodemagasin!=null)}" value="journal de restitution" ajax="false" action="#{journalMouvement.printPdfJournalRestitution()}"/>
+                        </f:facet>
+                    </p:panelGrid>
+                </h:form>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>

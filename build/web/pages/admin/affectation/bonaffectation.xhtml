@@ -1,0 +1,87 @@
+
+
+
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui">
+
+
+    <p:dialog appendTo="@(body)" header="création de bon" widgetVar="bonnewDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+        <h:form> 
+            <p:panelGrid columns="2">
+                <p:outputLabel value="Structure:" for="structureD" />
+                <p:selectOneMenu id="structureD" value="#{affectationBean.structure.codestructure}"   required="true" requiredMessage="The structure field is required.">
+                    <!-- TODO: update below reference to list of available items-->
+                    <f:ajax listener="#{affectationBean.changeValue()}" render="@form"/>
+                    <f:selectItem itemValue="" itemLabel="select One"/>
+                    <f:selectItems value="#{structureBean.liste}" var="structureD" itemLabel="#{structureD.libellestructure}" itemValue="#{structureD.codestructure}"/>
+                </p:selectOneMenu>
+                <p:outputLabel value="Service:" for="service" />
+                <p:selectOneMenu id="service" value="#{affectationBean.service.codeservice}" required="true" requiredMessage="The service field is required.">
+                    <!-- TODO: update below reference to list of available items-->
+                    <f:ajax listener="#{affectationBean.changeValue2()}" render="poste"/>
+                    <f:selectItem itemValue="" itemLabel="select One"/>
+                    <f:selectItems value="#{affectationBean.structure.serviceCollection}" var="service1" itemLabel="#{service1.libelleservice}" itemValue="#{service1.codeservice}"/>
+                </p:selectOneMenu>
+                <p:outputLabel value="Poste:" for="poste" />
+                <p:selectOneMenu id="poste" value="#{affectationBean.poste.idposte}" required="true" requiredMessage="The poste field is required.">
+                    <!-- TODO: update below reference to list of available items-->
+                    <f:selectItem itemValue="" itemLabel="select One"/>
+                    <f:selectItems value="#{affectationBean.service.postedetravailCollection}" var="poste" itemLabel="#{poste.nomposte}" itemValue="#{poste.idposte}"/>
+                </p:selectOneMenu>
+                <p:outputLabel value="libellebonaffectation:" for="libellebonaffectation" />
+                <p:inputText id="libellebonaffectation" value="#{affectationBean.bonaffectation.libellebonaffectation}" title="libellebonaffectation:" />
+
+
+                <p:commandButton update=":bon,:affectation" value="Ajouter Bon" action="#{affectationBean.createBon()}">
+                    <f:ajax listener="#{affectationBean.init()}"/>
+                </p:commandButton>
+            </p:panelGrid>
+        </h:form>
+    </p:dialog> 
+
+
+
+    <p:dialog appendTo="@(body)" header="liste de bon d'entrée" widgetVar="bonDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+
+        <h:form id="bon">
+            <p:dataTable value="#{affectationBean.listebonAll}" var="item" 
+                         rows="10" paginator="true"
+                         paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                         rowsPerPageTemplate="5,10,15" widgetVar="bonTab" editable="true" style="margin-bottom:20px"
+                         emptyMessage="No bon found with given criteria" scrollable="true">
+
+                <p:column>
+                    <f:facet name="header">
+                        <h:outputText value="Idbonaffectation"/>
+                    </f:facet>
+                    <h:outputText value="#{item.idbonaffectation}"/>
+                </p:column>
+                <p:column>
+                    <f:facet name="header">
+                        <h:outputText value="libellebonaffectation"/>
+                    </f:facet>
+                    <h:outputText value="#{item.libellebonaffectation}"/>
+                </p:column>
+                <p:column>
+                    <f:facet name="header">
+                        <h:outputText value="magasin"/>
+                    </f:facet>
+                    <h:outputText value="#{item.poste.nomposte}"/>
+                </p:column>
+                <p:column>
+                    <f:facet name="header">
+                        <h:outputText value="Poste"/>
+                    </f:facet>
+                    <h:outputText value="#{item.poste.nomposte}"/>
+                </p:column>
+                <f:facet name="footer">
+                    <p:commandButton value="nouveau" oncomplete="PF('bonnewDialog').show()"/>
+                </f:facet>
+            </p:dataTable>
+        </h:form>
+    </p:dialog>
+</ui:composition>

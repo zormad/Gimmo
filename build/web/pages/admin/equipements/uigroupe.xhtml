@@ -1,0 +1,100 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"  
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <p:accordionPanel widgetVar="groupe" >
+        <p:tab title="groupe">
+            <p:dialog appendTo="@(body)" header="création de groupe" widgetVar="groupenewDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                <h:form>
+                    <p:growl><p:autoUpdate/></p:growl>
+                    <p:panelGrid columns="2">
+                        <p:outputLabel value="Id groupe:" for="idgroupe" />
+                        <p:inputText id="idgroupe" value="#{groupeBean.groupe.idgroupe}" title="Idgroupe" required="true" requiredMessage="The Idgroupe field is required."/>
+                        <p:outputLabel value="Nom groupe:" for="nomgroupe" />
+                        <p:inputText id="nomgroupe" value="#{groupeBean.groupe.nomgroupe}" title="Nomgroupe" /> 
+                        <p:commandButton value="save" action="#{groupeBean.createGroupe()}" update="@widgetVar(groupe)" />
+                    </p:panelGrid>
+                </h:form>
+            </p:dialog>
+            <h:form id="formGroupe">
+                <p:growl id="growl"><p:autoUpdate/></p:growl>
+                <p:dataTable value="#{groupeBean.listeGroupe}" var="item" id="groupeTable" rows="10" paginator="true"
+                             paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                             rowsPerPageTemplate="5,10,15" widgetVar="groupeTab" editable="true" style="margin-bottom:20px"
+                             emptyMessage="No groupe found with given criteria" scrollable="true">
+                    <p:ajax event="rowEdit" listener="#{groupeBean.updateGroupe}"/>
+                    <p:ajax event="rowEditCancel" listener="#{groupeBean.cancelledGroupe()}" />
+                    <f:facet name="header">
+                        Liste de groupes d'article
+
+                        <p:commandButton id="toggler" type="button" value="Columns" style="float:right" icon="ui-icon-calculator" />
+                        <p:columnToggler datasource="groupeTable" trigger="toggler" />
+                    </f:facet>
+                    <p:column sortBy="#{item.idgroupe}" filterBy="#{item.idgroupe}">
+                        <f:facet name="header">
+                            <h:outputText value="Idgroupe"/>
+                        </f:facet>
+                        <h:outputText value="#{item.idgroupe}"/>
+                    </p:column>
+                    <p:column sortBy="#{item.nomgroupe}" filterBy="#{item.nomgroupe}">
+                        <f:facet name="header">
+                            <h:outputText value="Nomgroupe"/>
+                        </f:facet>
+                        <p:cellEditor>
+                            <f:facet name="output"><h:outputText value="#{item.nomgroupe}" /></f:facet>
+                            <f:facet name="input"><p:inputText value="#{item.nomgroupe}" style="width:100%"/></f:facet>
+                        </p:cellEditor>
+                    </p:column>
+                    <p:column style="width:32px">
+                        <p:rowEditor />
+                    </p:column>
+                    <p:column style="width:32px;text-align: center">
+                        <p:commandButton update="@widgetVar(groupe)" oncomplete="PF('groupeDialog').show()" icon="ui-icon-search" title="View">
+                            <f:setPropertyActionListener value="#{item}" target="#{groupeBean.selectedGroupe}" />
+                        </p:commandButton>
+                    </p:column>
+                    <p:column style="width:32px;text-align: center">
+                        <p:commandButton actionListener="#{groupeBean.deleteGroupe(item)}" icon="ui-icon-close" update="@widgetVar(groupe)">
+                            <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert" />
+                        </p:commandButton>
+
+                        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                            <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                        </p:confirmDialog>
+                    </p:column>
+                    <f:facet name="footer">
+                        <p:commandButton value="nouveau" oncomplete="PF('groupenewDialog').show()"/>
+                    </f:facet>
+                </p:dataTable>
+                <p:dialog header="groupe Info" widgetVar="groupeDialog" modal="false" showEffect="fade" hideEffect="fade" resizable="false">
+                    <p:autoUpdate/>
+                    <p:outputPanel style="text-align:center;"  id="groupeDetail">
+                        <p:panelGrid  columns="2" rendered="#{not empty groupeBean.selectedGroupe}" columnClasses="label,value">
+
+                            <h:outputText value="id du groupe" />
+                            <h:outputText value="#{groupeBean.selectedGroupe.idgroupe}" />
+
+                            <h:outputText value="libelle du groupe" />
+                            <h:outputText value="#{groupeBean.selectedGroupe.nomgroupe}"/>
+
+                            <h:outputText value="cree Le" />
+                            <h:outputText value="#{groupeBean.selectedGroupe.creele}"/>
+
+                            <h:outputText value="cree Par" />
+                            <h:outputText value="#{groupeBean.selectedGroupe.creepar}"/>
+
+                            <h:outputText value="modifier Le" />
+                            <h:outputText value="#{groupeBean.selectedGroupe.modifiele}"/>
+
+                            <h:outputText value="modifie Par" />
+                            <h:outputText value="#{groupeBean.selectedGroupe.modifiepar}"/>
+                        </p:panelGrid>
+                    </p:outputPanel>
+                </p:dialog>
+            </h:form>
+        </p:tab>
+    </p:accordionPanel>
+
+</ui:composition>

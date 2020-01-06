@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report name" pageWidth="555" pageHeight="802" columnWidth="535" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="866cecd5-47c1-4f53-a52d-461ded02a154">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="libellestructure" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select a.designation,s.libelleservice, count(e.idequip) as equipements from article a inner join equipement e on e.codearticle = a.codearticle , service s  
+ where e.posteactuel in(select p.idposte from postedetravail p where p.codeservice = s.codeservice)
+group by a.designation, s.libelleservice]]>
+	</queryString>
+	<field name="DESIGNATION" class="java.lang.String"/>
+	<field name="LIBELLESERVICE" class="java.lang.String"/>
+	<field name="EQUIPEMENTS" class="java.math.BigDecimal"/>
+	<group name="service group">
+		<groupExpression><![CDATA[$F{LIBELLESERVICE}]]></groupExpression>
+		<groupHeader>
+			<band height="64">
+				<line>
+					<reportElement x="0" y="0" width="1" height="32" uuid="bbbb40c4-642f-4b9e-b7b3-d2da92149240"/>
+				</line>
+				<line>
+					<reportElement x="0" y="1" width="555" height="1" uuid="0bd30bf5-1900-4912-b11f-39d9f88dad18"/>
+				</line>
+				<line>
+					<reportElement x="0" y="30" width="555" height="1" uuid="b5770408-767b-4036-a841-8737bf5de106"/>
+				</line>
+				<line>
+					<reportElement x="0" y="31" width="1" height="33" uuid="94b097c7-bb57-4fa4-a71e-6eff7b610a9c"/>
+				</line>
+				<line>
+					<reportElement x="0" y="1" width="555" height="1" uuid="b740bb8d-f939-4f94-a9ba-313792182f2a"/>
+				</line>
+				<line>
+					<reportElement x="555" y="0" width="1" height="20" uuid="5b9f4083-83f2-4517-9c34-1dea536d9d84"/>
+				</line>
+				<line>
+					<reportElement x="0" y="0" width="1" height="32" uuid="7e582d56-e671-4e57-a085-1df344d8fb11"/>
+				</line>
+				<line>
+					<reportElement x="555" y="0" width="1" height="32" uuid="040108cf-650c-4bfa-a57d-788240f248de"/>
+				</line>
+				<line>
+					<reportElement x="283" y="31" width="1" height="32" uuid="6b5324c2-7088-470c-baa3-0a2d760f667f"/>
+				</line>
+				<line>
+					<reportElement x="555" y="0" width="1" height="32" uuid="3efe59a1-bea5-48d6-8f56-7671cc74f8ad"/>
+				</line>
+				<textField>
+					<reportElement x="175" y="10" width="339" height="20" uuid="2db14bed-e2cb-4240-883e-1f46a6205d7e"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{LIBELLESERVICE}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="342" y="32" width="100" height="20" uuid="c755b8a2-3464-4128-bab9-865cad67acfb"/>
+					<text><![CDATA[QUANTITE]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="19" y="32" width="256" height="20" uuid="efd0ec47-4ec3-47b8-aa8e-bac65915e635"/>
+					<textElement textAlignment="Center"/>
+					<text><![CDATA[DESIGNATION]]></text>
+				</staticText>
+				<line>
+					<reportElement x="555" y="31" width="1" height="32" uuid="10fad19c-9e8f-4f31-990a-1b7f43cbbadd"/>
+				</line>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="4">
+				<line>
+					<reportElement x="0" y="0" width="555" height="1" uuid="7b934827-9440-4af4-b637-3442ebc7d560"/>
+				</line>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="235" splitType="Stretch">
+			<staticText>
+				<reportElement x="10" y="10" width="224" height="20" uuid="ccd614b6-04d6-44fd-8e60-3d1a3de9aae8"/>
+				<text><![CDATA[MINISTERE DE L'ECONOMIE DES FINANCES]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="22" y="134" width="192" height="20" uuid="eef732b4-9532-4d00-a3ca-1c1e827e2302"/>
+				<text><![CDATA[ DE LA COMPTABILITE PUBLIQUE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="335" y="169" width="100" height="20" uuid="7e2c771f-307b-464e-b1e7-afd6f88b14bf"/>
+				<text><![CDATA[OUAGADOUGOU, le]]></text>
+			</staticText>
+			<textField pattern="dd MMMMM yyyy">
+				<reportElement x="442" y="169" width="100" height="20" uuid="3ff8c336-9d4a-4dc4-a438-a69115aa6f02"/>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<image>
+				<reportElement x="314" y="60" width="200" height="96" uuid="ad7c9198-144d-4862-9c62-a3838f95a907"/>
+				<imageExpression><![CDATA["C:\\Users\\HP-FOLIO\\Documents\\NetBeansProjects\\gimmo3\\web\\resources\\images\\logo.png"]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement x="10" y="53" width="224" height="20" uuid="3de9c269-0f5e-439f-986a-09acc585c87a"/>
+				<text><![CDATA[=======================================]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="22" y="178" width="192" height="20" uuid="006821b9-5d7f-49f8-9a19-2ecbc91ef5ae"/>
+				<text><![CDATA[SERVICE FINANCIER ET DU MATERIEL]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="39" y="74" width="129" height="20" uuid="541bd179-f65a-4f36-92f6-d0ad3ed246fb"/>
+				<text><![CDATA[SECRETARIAT GENERAL]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="10" y="156" width="224" height="20" uuid="325d2e32-e03d-4d2d-bbfb-8321f5474627"/>
+				<text><![CDATA[=======================================]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="5" y="198" width="224" height="20" backcolor="#003333" uuid="63cb68c3-47b6-40ae-9fdd-15ef62f35a03"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[état de repartition des équipements :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="436" y="11" width="100" height="20" uuid="effb418c-8f4d-4129-83a1-93e8a5f9e3e1"/>
+				<textElement textAlignment="Justified">
+					<font size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
+				</textElement>
+				<text><![CDATA[BURKINA FASO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="34" y="30" width="145" height="20" uuid="f09d5ae8-96eb-4a69-97a2-5633fb154143"/>
+				<text><![CDATA[ET DU DEVELOPPEMENT]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="436" y="33" width="100" height="20" uuid="ba33d924-4e45-448a-80da-ebc6fab32c26"/>
+				<text><![CDATA[Unité-Progrès-Justice]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="22" y="114" width="192" height="20" uuid="131a2e18-0ddb-456d-9e79-db4269677af2"/>
+				<text><![CDATA[DIRECTION GENERAL DU TRESOR ET]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="10" y="92" width="224" height="20" uuid="dad55bdb-57f0-472b-a72c-1117f928ce0f"/>
+				<text><![CDATA[=======================================]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="229" y="198" width="313" height="20" uuid="36f14dcf-f59c-483e-9976-a01ba18e24ba"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{libellestructure}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="32" splitType="Stretch">
+			<line>
+				<reportElement x="555" y="1" width="1" height="30" uuid="4e10d77f-1151-46ed-82f2-e7b3ae33a3d7"/>
+			</line>
+			<textField>
+				<reportElement x="19" y="9" width="248" height="20" uuid="6c843308-0574-486d-8148-183cb2cd8b0a"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression><![CDATA[$F{DESIGNATION}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="283" y="2" width="1" height="29" uuid="faf047bf-4aab-4d6b-823e-695318176008"/>
+			</line>
+			<textField>
+				<reportElement x="335" y="9" width="100" height="20" uuid="80428216-6ad7-4c21-bb37-8a538a595c8b"/>
+				<textFieldExpression><![CDATA[$F{EQUIPEMENTS}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="1" width="555" height="1" uuid="9d9c3be8-bd15-443b-8f10-bde543719a58"/>
+			</line>
+			<line>
+				<reportElement x="0" y="-1" width="1" height="33" uuid="34d1a360-f942-4ec9-90f0-1e639c8e268a"/>
+			</line>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="54" splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

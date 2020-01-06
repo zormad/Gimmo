@@ -1,0 +1,232 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+    <h:head>
+        <title>Facelet Title</title>
+    </h:head>
+    <h:body>
+        <ui:composition template="../template.xhtml">
+            <ui:define name="content">
+                <ui:include src="bondotation.xhtml"/>
+                <h:form id="include">
+                    <p:growl><p:autoUpdate/></p:growl>
+                    <p:commandButton id="nouveauBon" value=" bon de dotation" type="button" onclick="PF('bonDialog').show();" update="@form" ajax="false"/>
+                    <c:if test="#{dotationBean.bondotation.idbondotation!=null}">
+                        <p:commandButton  id="validerBon" value="valider le bon de dotation" type="button" onclick="PF('validerBon').show();" update="@form"/>
+                    </c:if>
+                    <c:if test="#{dotationBean.selectedbondemande.idbondemande!=null}">
+                        <p:commandButton  value="articles demandés" type="button" onclick="PF('DetailsDialog').show();" update=":details"/>
+                    </c:if>    
+                </h:form>
+                <p:dialog appendTo="@(body)" widgetVar="DetailsDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                    <h:form id="details">
+                        <p:dataTable id="bonliste" value="#{dotationBean.selectedbondemande.demandeCollection}" var="item">
+                            <f:facet name="header">Liste des articles demandés </f:facet>
+
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="article"/>
+                                </f:facet>
+                                <h:outputText value="#{item.article.designation}"/>
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Quantite demandée"/>
+                                </f:facet>
+                                <h:outputText value="#{item.quantite}"/>
+                            </p:column>
+                        </p:dataTable>
+                    </h:form>
+                </p:dialog>
+                <h:form id="dotation">
+                    <p:growl><p:autoUpdate/></p:growl>
+                    <div class="ui-g">
+                        <p:panelGrid columns="2" >
+                            <p:outputLabel value="Magasin Principal" for="magasinT" />
+                            <p:selectOneMenu id="magasinT" value="#{dotationBean.magasinP.idcodemagasin}"   required="true" requiredMessage="The magasin field is required.">
+                                <!-- TODO: update below reference to list of available items-->
+                                <f:ajax listener="#{dotationBean.init()}" render="@form"/>
+                                <f:selectItem itemValue="" itemLabel="select One"/>
+                                <f:selectItems value="#{dotationBean.principalMagasins}" var="p" itemLabel="#{p.nommagasin}" itemValue="#{p.idcodemagasin}"/>
+                            </p:selectOneMenu>
+                            <f:facet name="header">choix des informations </f:facet>
+                            <c:if test="#{dotationBean.selectedbondemande.idbondemande==null}">
+                                <p:outputLabel value="Structure bénificiaire:" for="structureB" />
+                                <p:selectOneMenu id="structureB" value="#{dotationBean.structure.codestructure}"   required="true" requiredMessage="The structure field is required.">
+                                    <!-- TODO: update below reference to list of available items-->
+                                    <f:ajax listener="#{dotationBean.changeStructure()}" render="magasinB"/>
+                                    <p:ajax update=":include,cbon,@widgetVar(bonnewDialog),@widgetVar(bonDialog)"  />
+                                    <f:selectItem itemValue="" itemLabel="select One"/>
+                                    <f:selectItems actionListener="magasinB" value="#{structureBean.liste}" var="structureB" itemLabel="#{structureB.libellestructure}" itemValue="#{structureB.codestructure}"/>
+                                </p:selectOneMenu>
+                            </c:if>
+                            <p:outputLabel value="Magasin:" for="magasinB" />
+                            <h:outputText value="#{dotationBean.magasin.nommagasin}" id="magasinB"/>
+                            <p:outputLabel value="Bon:" for="cbon" />
+                            <p:selectOneMenu  id="cbon" value="#{dotationBean.bondotation.idbondotation}" required="true" requiredMessage="The bon field is required.">
+                                <!-- TODO: update below reference to list of available items-->
+                                <f:ajax listener="#{dotationBean.updatebon()}" render="@form"/>
+                                <f:ajax render=":include"  />
+                                <p:ajax update="@form,@widgetVar(validerBon)"  />
+                                <f:selectItem itemValue="" itemLabel="select One"/>
+                                <f:selectItems value="#{dotationBean.listebon}" var="bon" itemLabel="#{bon.libellebondotation}" itemValue="#{bon.idbondotation}"/>
+                            </p:selectOneMenu>
+                        </p:panelGrid>
+
+                    </div>
+                    <p:pickList id="dotationPickList" value="#{dotationBean.equipements}" var="equipement" effect="bounce"
+                                itemValue="#{equipement.idequip}" itemLabel="#{equipement.idequip} #{equipement.codearticle.designation}"  showCheckbox="true" responsive="true"
+                                showSourceFilter="true" showTargetFilter="true" filterMatchMode="contains" converter="equipementConverter" >
+
+                        <f:facet name="sourceCaption">id      désignation</f:facet>
+                        <f:facet name="targetCaption">id      désignation</f:facet>
+
+                        <p:ajax event="transfer" listener="#{dotationBean.onTransfer}"/>
+                        <p:ajax event="select" listener="#{dotationBean.onSelect}" />
+                        <p:ajax event="unselect" listener="#{dotationBean.onUnselect}" />
+                        <p:ajax event="reorder" listener="#{dotationBean.onReorder}" />
+
+                    </p:pickList>
+                    <p:commandButton  update="@widgetVar(validerBon),@form" id="dotationSubmit" value="Doter" action="#{dotationBean.create()}" style="margin-top:5px" />
+
+                    <p:dialog modal="false" showEffect="fade" hideEffect="fade" widgetVar="dotationDialog">
+                        <h:panelGrid id="displaydotation" columns="2">
+                            <h:outputText value="Source: " style="font-weight:bold" />
+                            <ui:repeat value="#{dotationBean.equipements.source}" var="equipement">
+                                <h:outputText value="#{equipement.idequip}" style="margin-right:5px" />
+                            </ui:repeat>
+
+                            <h:outputText value="Target: " style="font-weight:bold" />
+                            <ui:repeat value="#{dotationBean.equipements.target}" var="equip">
+                                <h:outputText value="#{equip.idequip}" style="margin-right:5px" />
+                            </ui:repeat>
+                        </h:panelGrid>
+                    </p:dialog>
+                    <h:form>
+                        <h1><h:outputText value="Liste des équipements dotés"/></h1>
+                        <p:dataTable value="#{dotationBean.equipementsdotes}" 
+                                     var="item" rows="10" paginator="true"
+                                     paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                     rowsPerPageTemplate="5,10,15" editable="true" style="margin-bottom:20px"
+                                     emptyMessage="No equipement found with given criteria">
+                            <c:if test="#{dotationBean.bondotation.idbondotation!=null}">
+                                <f:facet name="header">
+                                    <c:if test="#{dotationBean.bondotation.valider=='false'}">
+                                        <p:commandButton  value="valider" type="button" onclick="PF('validerBon').show();"/>
+                                        <p:commandButton value="Imprimer" ajax="false" action="#{dotationBean.printPdf()}" disabled="#{dotationBean.equipementsdotes.size()==0}"/>
+                                    </c:if>
+                                    <c:if test="#{dotationBean.bondotation.valider=='true'}">
+                                        <p:commandButton ajax="false" value="Imprimer" actionListener="#{dotationBean.printPdf()}"/>
+                                    </c:if>
+                                </f:facet>
+                            </c:if>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Id equipement"/>
+                                </f:facet>
+                                <h:outputText value="#{item.idequip}"/>
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Cout d'acquisition"/>
+                                </f:facet>
+                                <h:outputText value="#{item.coutacqui}"/>
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="designation"/>
+                                </f:facet>
+                                <h:outputText value="#{item.codearticle.designation}"/>
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="marque"/>
+                                </f:facet>
+                                <h:outputText value="#{item.idmarque.nommarque}"/>
+                            </p:column>
+                        </p:dataTable>
+                    </h:form>
+                </h:form>
+
+                <p:dialog appendTo="@(body)" header="Equipements du bon de dotation #{dotationBean.bondotation.idbondotation} #{dotationBean.bondotation.libellebondotation}" widgetVar="validerBon" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                    <p:dataTable id="listevaliderBon" value="#{dotationBean.equipementsdotes}" 
+                                 var="item" rows="10" paginator="true"
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rowsPerPageTemplate="5,10,15" editable="true" style="margin-bottom:20px"
+                                 emptyMessage="No equipement found with given criteria">
+                        <f:facet name="header">
+                            <c:if test="#{dotationBean.bondotation.valider=='false'}">
+                                <p:commandButton update=":include,:dotation,@widgetVar(validerBon)" value="Valider" actionListener="#{dotationBean.updateBon()}" >
+                                    <p:confirm header="Confirmation" message="Etes vous sûr?" icon="ui-icon-alert" />
+                                </p:commandButton>
+
+                                <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                                    <p:commandButton value="Oui" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                                    <p:commandButton value="Non" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                                </p:confirmDialog>
+                            </c:if>
+                        </f:facet>
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="Idequip"/>
+                            </f:facet>
+                            <h:outputText value="#{item.idequip}"/>
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="Date d'acquisition"/>
+                            </f:facet>
+                            <h:outputText value="#{item.dateacqui}"> 
+                                <f:convertDateTime pattern="MM/dd/yyyy HH:mm:ss" />
+                            </h:outputText>
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="Cout d'acquisition"/>
+                            </f:facet>
+                            <h:outputText value="#{item.coutacqui}"/>
+                        </p:column>
+
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="article"/>
+                            </f:facet>
+                            <h:outputText value="#{item.codearticle.designation}"/>
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="etat"/>
+                            </f:facet>
+                            <h:outputText value="#{item.idetat.libelleetat}"/>
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="marque"/>
+                            </f:facet>
+                            <h:outputText value="#{item.idmarque.nommarque}"/>
+                        </p:column>
+                        <f:facet name="footer">
+                            <c:if test="#{dotationBean.bondotation.valider=='false'}">
+                                <p:commandButton update=":include,:dotation,@widgetVar(validerBon)" value="Valider" actionListener="#{dotationBean.updateBon()}" >
+                                    <p:confirm header="Confirmation" message="Etes vous sûr?" icon="ui-icon-alert" />
+                                </p:commandButton>
+
+                                <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                                    <p:commandButton value="Oui" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                                    <p:commandButton value="Non" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                                </p:confirmDialog>
+                            </c:if>
+                        </f:facet>
+                    </p:dataTable>
+                </p:dialog>
+            </ui:define>
+        </ui:composition>
+
+    </h:body>
+</html>
+

@@ -1,0 +1,70 @@
+
+
+
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+
+    <p:dialog appendTo="@(body)" header="création de bon" widgetVar="bonnewDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+        <h:form> 
+            <p:panelGrid columns="2">
+                <c:if test="#{dotationBean.selectedbondemande.idbondemande==null}">
+                    <p:outputLabel value="Structure:" for="structureB" />
+                    <p:selectOneMenu id="structureB" value="#{dotationBean.structure.codestructure}"   required="true" requiredMessage="The structure field is required.">
+                        <!-- TODO: update below reference to list of available items-->
+                        <f:ajax listener="#{dotationBean.changeStructure()}" render="magasinB"/>
+                        <f:selectItem itemValue="" itemLabel="select One"/>
+                        <f:selectItems actionListener="magasinB" value="#{structureBean.liste}" var="structureB" itemLabel="#{structureB.libellestructure}" itemValue="#{structureB.codestructure}"/>
+                    </p:selectOneMenu>
+                </c:if>
+                <p:outputLabel value="Magasin:" for="magasinB" />
+                <h:outputText value="#{dotationBean.magasin.nommagasin}" id="magasinB"/>
+                <p:outputLabel value="Libellebondotation:" for="libellebondotation" />
+                <p:inputText id="libellebondotation" value="#{dotationBean.bondotation.libellebondotation}" title="Libellebondotation" />
+                <p:commandButton update=":bon,:dotation" value="Ajouter Bon" action="#{dotationBean.createBon()}">
+                    <f:ajax listener="#{dotationBean.init()}"/>
+                </p:commandButton>
+            </p:panelGrid>
+        </h:form>
+    </p:dialog> 
+
+
+
+    <p:dialog appendTo="@(body)" header="liste de bon d'entrée" widgetVar="bonDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+
+        <h:form id="bon">
+            <p:dataTable value="#{dotationBean.listeBonAll}" var="item" 
+                         rows="10" paginator="true"
+                         paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                         rowsPerPageTemplate="5,10,15" widgetVar="bonTab" editable="true" style="margin-bottom:20px"
+                         emptyMessage="No bon found with given criteria" scrollable="true">
+                <p:column>
+                    <f:facet name="header">
+                        <h:outputText value="Idbondotation"/>
+                    </f:facet>
+                    <h:outputText value="#{item.idbondotation}"/>
+                </p:column>
+                <p:column>
+                    <f:facet name="header">
+                        <h:outputText value="Libellebondotation"/>
+                    </f:facet>
+                    <h:outputText value="#{item.libellebondotation}"/>
+                </p:column>
+                <p:column>
+                    <f:facet name="header">
+                        <h:outputText value="magasin"/>
+                    </f:facet>
+                    <h:outputText value="#{item.idcodemagasin.nommagasin}"/>
+                </p:column>
+                <f:facet name="footer">
+                    <p:commandButton value="nouveau" oncomplete="PF('bonnewDialog').show()"/>
+                </f:facet>
+            </p:dataTable>
+        </h:form>
+    </p:dialog>
+</ui:composition>

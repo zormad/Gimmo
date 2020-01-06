@@ -1,0 +1,108 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>Facelet Title</title>
+    </h:head>
+    <h:body>
+        <ui:composition template="../template.xhtml">
+            <ui:define name="content">
+                <p:dialog appendTo="@(body)" header="création de marque" widgetVar="marquenewDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                    <h:form>
+                        <p:growl><p:autoUpdate/></p:growl>
+                    <p:panelGrid columns="2">
+                        <p:outputLabel value="Id marque:" for="idmarque" />
+                        <p:inputText id="idmarque" value="#{equipUtilBean.marque.idmarque}" title="Idmarque" required="true" requiredMessage="The Idmarque field is required."/>
+                        <p:outputLabel value="Nom marque:" for="nommarque" />
+                        <p:inputText id="nommarque" value="#{equipUtilBean.marque.nommarque}" title="Nommarque" />
+                        <f:facet name="footer">
+                            <p:commandButton value="save" action="#{equipUtilBean.createMarque()}" update=":formMarque"/>
+                        </f:facet>
+                    </p:panelGrid>
+                </h:form>
+                </p:dialog>
+                <h:form id="formMarque">
+                    <p:growl><p:autoUpdate/></p:growl>
+                    <p:dataTable value="#{equipUtilBean.listeMarque}" id="marqueTable" var="item" rows="10" paginator="true"
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rowsPerPageTemplate="5,10,15" widgetVar="marqueTable" editable="true" style="margin-bottom:20px"
+                                 emptyMessage="No marque found with given criteria">
+                        <p:ajax event="rowEdit" listener="#{equipUtilBean.updateMarque}"/>
+                        <p:ajax event="rowEditCancel" listener="#{equipUtilBean.cancelledMarque()}" />
+                         <f:facet name="header">
+                            Liste de marques d'article
+
+                            <p:commandButton id="toggler" type="button" value="Columns" style="float:right" icon="ui-icon-calculator" />
+                            <p:columnToggler datasource="marqueTable" trigger="toggler" />
+                        </f:facet>
+                        <p:column sortBy="#{item.idmarque}" filterBy="#{item.idmarque}">
+                            <f:facet name="header">
+                                <h:outputText value="Id marque"/>
+                            </f:facet>
+                            <h:outputText value="#{item.idmarque}"/>
+                        </p:column>
+                        <p:column sortBy="#{item.nommarque}" filterBy="#{item.nommarque}">
+                            <f:facet name="header">
+                                <h:outputText value="libelle marque"/>
+                            </f:facet>
+                            <p:cellEditor>
+                                <f:facet name="output"><h:outputText value="#{item.nommarque}" /></f:facet>
+                                <f:facet name="input"><p:inputText value="#{item.nommarque}" style="width:100%"/></f:facet>
+                            </p:cellEditor>
+                        </p:column>
+                        <p:column style="width:32px">
+                            <p:rowEditor />
+                        </p:column>
+                        <p:column style="width:32px;text-align: center">
+                            <p:commandButton update=":formMarque:marqueDetail"  oncomplete="PF('marqueDialog').show()" icon="ui-icon-search" title="View">
+                                <f:setPropertyActionListener value="#{item}" target="#{equipUtilBean.selectedMarque}" />
+                            </p:commandButton>
+                        </p:column>
+                        <p:column style="width:32px;text-align: center">
+                            <p:commandButton actionListener="#{equipUtilBean.deleteMarque(item)}" icon="ui-icon-close" update=":formMarque:marqueTable">
+                                <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert" />
+                            </p:commandButton>
+
+                            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                                <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                                <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                            </p:confirmDialog>
+                        </p:column>
+                        <f:facet name="footer">
+                            <p:commandButton value="nouveau" oncomplete="PF('marquenewDialog').show()"/>
+                        </f:facet>
+                    </p:dataTable>
+                    <p:dialog header="marque Info" widgetVar="marqueDialog" modal="false" showEffect="fade" hideEffect="fade" resizable="false">
+                        <p:outputPanel id="marqueDetail" style="text-align:center;">
+                            <p:panelGrid  columns="2" rendered="#{not empty equipUtilBean.selectedMarque}" columnClasses="label,value">
+
+                                <h:outputText value="id marque:" />
+                                <h:outputText value="#{equipUtilBean.selectedMarque.idmarque}" />
+
+                                <h:outputText value="libelle marque" />
+                                <h:outputText value="#{equipUtilBean.selectedMarque.nommarque}" />
+
+                                <h:outputText value="cree le" />
+                                <h:outputText value="#{equipUtilBean.selectedMarque.creele}"/>
+
+                                <h:outputText value="cree par" />
+                                <h:outputText value="#{equipUtilBean.selectedMarque.creepar}"/>
+
+                                <h:outputText value="modifier le" />
+                                <h:outputText value="#{equipUtilBean.selectedMarque.modifiele}"/>
+                                <h:outputText value="modifie par" />
+                                <h:outputText value="#{equipUtilBean.selectedMarque.modifiepar}"/>
+                            </p:panelGrid>
+                        </p:outputPanel>
+                    </p:dialog>
+                </h:form>
+
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
+

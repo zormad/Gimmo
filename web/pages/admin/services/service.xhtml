@@ -1,0 +1,155 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>Facelet Title</title>
+    </h:head>
+    <h:body>
+        <ui:composition template="../template.xhtml">
+            <ui:define name="content">
+                <ui:include src="listeposteservice.xhtml"/>
+                <p:dialog appendTo="@(body)" header="création de service" widgetVar="servicenewDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                    <h:form>
+                        <p:growl><p:autoUpdate/></p:growl>
+                        <p:panelGrid columns="2">
+                            <p:outputLabel value="Codeservice:" for="codeservice" />
+                            <p:inputText id="codeservice" value="#{serviceBean.service.codeservice}" title="Codeservice" required="true" requiredMessage="The Codeservice field is required."/>
+                            <p:outputLabel value="Libelleservice:" for="libelleservice" />
+                            <p:inputText id="libelleservice" value="#{serviceBean.service.libelleservice}" title="Libelleservice" />
+                            <p:outputLabel value="responsable" for="idagent" />
+                            <p:selectOneMenu id="idagent" value="#{serviceBean.agent.idagent}" required="true" requiredMessage="The Idagent field is required.">
+                                <!-- TODO: update below reference to list of available items-->
+                                <f:selectItems value="#{agentBean.liste}" var="agent" itemLabel="#{agent.nom} #{agent.prenom}" itemValue="#{agent.idagent}"/>
+                            </p:selectOneMenu>
+                            <p:outputLabel value="Structure:" for="structure" />
+                            <p:selectOneMenu id="structure" value="#{serviceBean.structure.codestructure}" required="true" requiredMessage="The Structure field is required.">
+                                <!-- TODO: update below reference to list of available items-->
+                                <f:selectItems value="#{structureBean.liste}" var="structure" itemLabel="#{structure.libellestructure} " itemValue="#{structure.codestructure}"/>
+                            </p:selectOneMenu>
+                            <f:facet name="footer">
+                                <p:commandButton value="create" action="#{serviceBean.create()}" update=":formService"/>
+                            </f:facet>
+                        </p:panelGrid>
+                    </h:form>
+                </p:dialog>
+                <h:form id="formService">
+                    <p:dataTable value="#{serviceBean.liste}" var="item" id="serviceTable" rows="10" paginator="true"
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rowsPerPageTemplate="5,10,15" widgetVar="serviceTab" editable="true" style="margin-bottom:20px"
+                                 emptyMessage="No service found with given criteria" selectionMode="single" selection="#{serviceBean.selectedservice}" rowKey="#{item.codeservice}">
+                        <p:ajax event="rowEdit" listener="#{serviceBean.update}"/>
+                        <p:ajax event="rowEditCancel" listener="#{serviceBean.cancelled()}" />
+                        <p:ajax event="rowSelect" update="bb" />
+                        <p:ajax event="rowUnselect" update="bb" />
+                        <f:facet name="header">
+                            Liste de services
+
+                            <p:commandButton id="toggler" type="button" value="Columns" style="float:right" icon="ui-icon-calculator" />
+                            <p:columnToggler datasource="serviceTable" trigger="toggler" />
+                        </f:facet>
+                        <p:column sortBy="#{item.codeservice}" filterBy="#{item.codeservice}">
+                            <f:facet name="header">
+                                <h:outputText value="Code service"/>
+                            </f:facet>
+                            <h:outputText value="#{item.codeservice}"/>
+                        </p:column>
+                        <p:column sortBy="#{item.libelleservice}" filterBy="#{item.libelleservice}">
+                            <f:facet name="header">
+                                <h:outputText value="Libelle service"/>
+                            </f:facet>
+                            <p:cellEditor>
+                                <f:facet name="output"><h:outputText value="#{item.libelleservice}" /></f:facet>
+                                <f:facet name="input"><p:inputText value="#{item.libelleservice}" style="width:100%"/></f:facet>
+                            </p:cellEditor>
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="responsable"/>
+                            </f:facet>
+                            <p:cellEditor>
+                                <f:facet name="output"><h:outputText value="#{item.idagent.nom} #{item.idagent.prenom}" /></f:facet>
+                                <f:facet name="input">
+                                    <h:selectOneMenu value="#{item.idagent.idagent}">
+                                        <f:selectItems value="#{agentBean.liste}" var="agent" itemLabel="#{agent.nom} #{agent.prenom}" itemValue="#{agent.idagent}"/>
+                                    </h:selectOneMenu>
+                                </f:facet>
+                            </p:cellEditor>
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="Structure"/>
+                            </f:facet>
+                            <p:cellEditor>
+                                <f:facet name="output"><h:outputText value="#{item.structure.libellestructure}" /></f:facet>
+                                <f:facet name="input">
+                                    <h:selectOneMenu value="#{item.structure.codestructure}">
+                                        <f:selectItems value="#{structureBean.liste}" var="struct" itemLabel="#{struct.libellestructure}" itemValue="#{struct.codestructure}"/>
+                                    </h:selectOneMenu>
+                                </f:facet>
+                            </p:cellEditor>
+                        </p:column>
+                        <p:column style="width:32px">
+                            <p:rowEditor />
+                        </p:column>
+                        <p:column style="width:32px;text-align: center">
+                            <p:commandButton update=":formService"  oncomplete="PF('serviceDialog').show()" icon="ui-icon-search" title="View">
+                                <f:setPropertyActionListener value="#{item}" target="#{serviceBean.selectedservice1}" />
+                            </p:commandButton>
+                        </p:column>
+                        <p:column style="width:32px;text-align: center">
+                            <p:commandButton actionListener="#{serviceBean.delete(item)}" icon="ui-icon-close" update=":formService">
+                                <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert" />
+                            </p:commandButton>
+
+                            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                                <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                                <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                            </p:confirmDialog>
+                        </p:column>
+                        <f:facet name="footer">
+                            <h:form id="bb">
+                                <p:commandButton value="nouveau" oncomplete="PF('servicenewDialog').show()"/>
+                                <p:commandButton update="@widgetVar(listeposteserviceDialog)" value="postes" oncomplete="PF('listeposteserviceDialog').show()" disabled="#{ empty serviceBean.selectedservice}"/>
+                            </h:form>
+                        </f:facet>
+                    </p:dataTable>
+                    <p:dialog header="service Info" widgetVar="serviceDialog" modal="false" showEffect="fade" hideEffect="fade" resizable="false">
+                        <p:outputPanel id="serviceDetail" style="text-align:center;">
+                            <p:panelGrid  columns="2" rendered="#{not empty serviceBean.selectedservice1}" columnClasses="label,value">
+
+                                <h:outputText value="id service" />
+                                <h:outputText value="#{serviceBean.selectedservice1.codeservice}" />
+
+                                <h:outputText value="libelle service" />
+                                <h:outputText value="#{serviceBean.selectedservice1.libelleservice}" />
+
+                                <h:outputText value="responsable " />
+                                <h:outputText value="#{serviceBean.selectedservice1.idagent.nom} #{serviceBean.selectedservice1.idagent.prenom}" />
+
+                                <h:outputText value="structure " />
+                                <h:outputText value="#{serviceBean.selectedservice1.structure.libellestructure}" />
+
+                                <h:outputText value="cree le" />
+                                <h:outputText value="#{serviceBean.selectedservice1.creele}"/>
+
+                                <h:outputText value="cree par" />
+                                <h:outputText value="#{serviceBean.selectedservice1.creepar}"/>
+
+                                <h:outputText value="modifier le" />
+                                <h:outputText value="#{serviceBean.selectedservice1.modifiele}"/>
+                                <h:outputText value="modifie par" />
+                                <h:outputText value="#{serviceBean.selectedservice1.modifiepar}"/>
+                            </p:panelGrid>
+                        </p:outputPanel>
+                    </p:dialog>
+
+                </h:form>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
+

@@ -1,0 +1,37 @@
+
+
+
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui">
+
+
+    <p:dialog appendTo="@(body)" header="création d'année" widgetVar="anneenewDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+        <h:form> 
+            <p:panelGrid columns="2">
+                <p:outputLabel value="Anneeid:" for="anneeid" />
+                <p:inputText id="anneeid" value="#{anneeBean.annee.anneeid}" title="Anneeid" required="true" requiredMessage="The Anneeid field is required."/>
+            </p:panelGrid>
+        </h:form>
+    </p:dialog> 
+
+
+    <h:form id="annee">
+        <p:dataTable value="#{anneeBean.listeAnnee}" var="item" rows="5" paginator="true"
+                     paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                     style="margin-bottom:20px"
+                     emptyMessage="liste vide" scrollable="true" selectionMode="single" selection="#{besoinBean.selectedAnnee}" rowKey="#{item.anneeid}">
+            <p:ajax event="rowSelect" update=":annee" />
+            <p:ajax event="rowUnselect" update=":annee" />
+            <p:column>
+                <f:facet name="header">
+                    <h:outputText value="Anneeid"/>
+                </f:facet>
+                <h:outputText value="#{item.anneeid}"/>
+            </p:column>
+        </p:dataTable>
+    </h:form>
+</ui:composition>

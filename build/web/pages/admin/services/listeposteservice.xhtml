@@ -1,0 +1,64 @@
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets" >
+   
+    <p:dialog appendTo="@(body)" header="Liste de de poste de travail de #{serviceBean.selectedservice.libelleservice}" widgetVar="listeposteserviceDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+        <h:form id="form">
+            <p:growl id="growl" ><p:autoUpdate/></p:growl>
+            <p:dataTable id="posteTable" value="#{serviceBean.selectedservice.postedetravailCollection}"
+                         var="item" rows="10" paginator="true"
+                         paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                         rowsPerPageTemplate="5,10,15" widgetVar="posteTab" editable="true" style="margin-bottom:20px"
+                         emptyMessage="No poste found with given criteria">
+                <p:ajax event="rowEdit" listener="#{postedetravailBean.update}"/>
+                <p:ajax event="rowEditCancel" listener="#{postedetravailBean.cancelled()}" />
+                <f:facet name="header">
+                    <p:commandButton id="toggler" type="button" value="Columns" style="float:right" icon="ui-icon-calculator" />
+                    <p:columnToggler datasource="posteTable" trigger="toggler" />
+                </f:facet>
+                <p:column  headerText="Id poste" sortBy="#{item.idposte}">
+                    <h:outputText value="#{item.idposte}" />
+                </p:column>
+                <p:column  headerText="Libelle du poste" sortBy="#{item.nomposte}" >
+                    <p:cellEditor>
+                        <f:facet name="output"><h:outputText value="#{item.nomposte}" /></f:facet>
+                        <f:facet name="input"><p:inputText value="#{item.nomposte}" style="width:100%"/></f:facet>
+                    </p:cellEditor>
+                </p:column>
+                <p:column style="width:32px;text-align: center">
+                    <p:commandButton update="@widgetVar(posteInfoDialog)"  oncomplete="PF('posteInfoDialog').show()" icon="ui-icon-search" title="View">
+                        <f:setPropertyActionListener value="#{item}" target="#{postedetravailBean.selectedposte1}" />
+                    </p:commandButton>
+                </p:column>
+            </p:dataTable>
+        </h:form>
+    </p:dialog>
+    <p:dialog appendTo="@(body)" header="poste Info" widgetVar="posteInfoDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+        <form id="formposteinfo"> 
+            <p:outputPanel id="posteDetail" style="text-align:center;">
+                <p:panelGrid  columns="2" rendered="#{not empty postedetravailBean.selectedposte1}" columnClasses="label,value">
+
+                    <h:outputText value="id poste:" />
+                    <h:outputText value="#{postedetravailBean.selectedposte1.idposte}" />
+
+                    <h:outputText value="libelle poste" />
+                    <h:outputText value="#{postedetravailBean.selectedposte1.nomposte}" />
+
+                    <h:outputText value="cree le" />
+                    <h:outputText value="#{postedetravailBean.selectedposte1.creele}"/>
+
+                    <h:outputText value="cree par" />
+                    <h:outputText value="#{postedetravailBean.selectedposte1.creepar}"/>
+
+                    <h:outputText value="modifier le" />
+                    <h:outputText value="#{postedetravailBean.selectedposte1.modifiele}"/>
+                    <h:outputText value="modifie par" />
+                    <h:outputText value="#{postedetravailBean.selectedposte1.modifiepar}"/>
+                </p:panelGrid>
+            </p:outputPanel>
+        </form>
+    </p:dialog>
+</ui:composition>

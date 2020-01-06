@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+    <h:head>
+        <title>Facelet Title</title>
+    </h:head>
+    <h:body>
+        <ui:composition template="../template.xhtml">
+            <ui:define name="content">
+                <h:form id="etatExecution">
+                    <p:panelGrid columns="2">
+                        
+                            <p:outputLabel value="Structure" for="structure"/>
+                            <p:selectOneMenu  id="structure" value="#{etatExecution.structure1.codestructure}">
+                                <f:ajax listener="#{etatExecution.changeValues()}" render="magasin"/>
+                                <p:ajax update=":etatExecution"/>
+                                <f:selectItem itemLabel="Select One" itemValue=""/>
+                                <f:selectItems value="#{etatExecution.listeStructure}" var="st" itemLabel="#{st.libellestructure}" itemValue="#{st.codestructure}"/>
+                            </p:selectOneMenu>
+                            <p:outputLabel value="Magasin" for="magasin"/>
+                            <p:outputLabel value="#{etatExecution.magasin.nommagasin}" id="magasin"/>
+                        <f:facet name="footer">
+                            <c:if test="#{etatExecution.magasin.idcodemagasin!=null}">
+                                <p:commandButton value="Etat d'execution du #{etatExecution.magasin.idcodemagasin}" action="#{etatExecution.printPdfEtatExecution()}" ajax="false"/>
+                            </c:if>
+                        </f:facet>
+                    </p:panelGrid>
+                </h:form>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>

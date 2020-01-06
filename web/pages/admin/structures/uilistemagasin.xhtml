@@ -1,0 +1,106 @@
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+    
+    <p:dialog appendTo="@(body)" header="Liste de magasins de #{structureBean.selectedStructure.libellestructure}" widgetVar="listemagasinstructureDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+        <h:form id="formMagasinstructure">
+            <p:dataTable id="magasins" value="#{structureBean.selectedStructure.magasinCollection}"  var="item" rows="10" paginator="true"
+                         paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                         rowsPerPageTemplate="5,10,15" editable="true" style="margin-bottom:20px"
+                         emptyMessage="No magasin found with given criteria">
+                <p:ajax event="rowEdit" listener="#{magasinBean.update}"/>
+                <p:ajax event="rowEditCancel" listener="#{magasinBean.cancelled()}" />
+
+                <f:facet name="header">
+
+
+                    <p:commandButton id="toggler" type="button" value="Columns" style="float:right" icon="ui-icon-calculator" />
+                    <p:columnToggler datasource="magasins" trigger="toggler" />
+                </f:facet>
+                <p:column sortBy="#{item.idcodemagasin}" filterBy="#{item.idcodemagasin}">
+                    <f:facet name="header">
+                        <h:outputText value="code magasin"/>
+                    </f:facet>
+                    <h:outputText value="#{item.idcodemagasin}"/>
+                </p:column>
+                <p:column sortBy="#{item.nommagasin}" filterBy="#{item.nommagasin}">
+                    <f:facet name="header">
+                        <h:outputText value="libelle magasin"/>
+                    </f:facet>
+                    <p:cellEditor>
+                        <f:facet name="output"><h:outputText value="#{item.nommagasin}" /></f:facet>
+                        <f:facet name="input"><p:inputText value="#{item.nommagasin}"/></f:facet>
+                    </p:cellEditor>
+                </p:column>
+                <p:column>
+                    <f:facet name="header">
+                        <h:outputText value="structure"/>
+                    </f:facet>
+                    <p:cellEditor>
+                        <f:facet name="output"><h:outputText value="#{item.codestructure.codestructure}" /></f:facet>
+                        <f:facet name="input">
+                            <h:selectOneMenu value="#{item.codestructure.codestructure}">
+                                <f:selectItems value="#{structureBean.liste}" var="structure" itemLabel="#{structure.libellestructure}" itemValue="#{structure.codestructure}"/>
+                            </h:selectOneMenu>
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+                <p:column>
+                    <f:facet name="header">
+                        <h:outputText value="type de magasin"/>
+                    </f:facet>
+                    <p:cellEditor>
+                        <f:facet name="output"><h:outputText value="#{item.idtypemag.idtypemag}" /></f:facet>
+                        <f:facet name="input">
+                            <h:selectOneMenu value="#{item.idtypemag.idtypemag}">
+                                <f:selectItems value="#{magasinBean.listeTypemagasins}" var="type" itemLabel="#{type.libelletypemag}" itemValue="#{type.idtypemag}"/>
+                            </h:selectOneMenu>
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+                <p:column style="width:32px;text-align: center">
+                    <p:commandButton update=":magasinDetail"  oncomplete="PF('magasinInfoDialog').show()" icon="ui-icon-search" title="View">
+                        <f:setPropertyActionListener value="#{item}" target="#{magasinBean.selectedmagasin}" />
+                    </p:commandButton>
+                </p:column>
+            </p:dataTable>
+        </h:form>
+    </p:dialog>
+
+    <p:dialog header="magasin Info" widgetVar="magasinInfoDialog" modal="false" showEffect="fade" hideEffect="fade" resizable="false">
+        <p:outputPanel id="magasinDetail" style="text-align:center;">
+            <p:panelGrid  columns="2" rendered="#{not empty magasinBean.selectedmagasin}" columnClasses="label,value">
+                <h:outputText value="code du magasin" />
+                <h:outputText value="#{magasinBean.selectedmagasin.idcodemagasin}" />
+
+                <h:outputText value="libelle du magasin" />
+                <h:outputText value="#{magasinBean.selectedmagasin.nommagasin}"/>
+
+                <h:outputText value="structure" />
+                <h:outputText value="#{magasinBean.selectedmagasin.codestructure.libellestructure}" />
+
+                <h:outputText value="type de structure" />
+                <h:outputText value="#{structureBean.selectedStructure.idtypestruct.libelletypestruct}" />
+
+                <h:outputText value="type du magasin" />
+                <h:outputText value="#{magasinBean.selectedmagasin.idtypemag.libelletypemag}"/>
+
+                <h:outputText value="cree Le" />
+                <h:outputText value="#{magasinBean.selectedmagasin.creele}"/>
+
+                <h:outputText value="cree Par" />
+                <h:outputText value="#{magasinBean.selectedmagasin.creepar}"/>
+
+                <h:outputText value="modifier Le" />
+                <h:outputText value="#{magasinBean.selectedmagasin.modifiele}"/>
+
+                <h:outputText value="modifie Par" />
+                <h:outputText value="#{magasinBean.selectedmagasin.modifiepar}"/>
+
+            </p:panelGrid>
+        </p:outputPanel>
+    </p:dialog>
+</ui:composition>

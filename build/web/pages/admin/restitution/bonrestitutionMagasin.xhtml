@@ -1,0 +1,71 @@
+
+
+
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui">
+    <p:dialog appendTo="@(body)" header="création de bon" widgetVar="bonnewDialogMagasin" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+        <h:form> 
+            <p:panelGrid columns="2">
+                <p:outputLabel value="Structure:" for="structureD" />
+                <p:selectOneMenu id="structureD" value="#{retournerBean.structure.codestructure}"   required="true" requiredMessage="The structure field is required.">
+                    <!-- TODO: update below reference to list of available items-->
+
+                    <f:ajax  listener="#{retournerBean.changeValueP()}" render="@form"/>
+                    <f:selectItem itemValue="" itemLabel="select One"/>
+                    <f:selectItems actionListener="service" value="#{structureBean.liste}" var="structureD" itemLabel="#{structureD.libellestructure}" itemValue="#{structureD.codestructure}"/>
+                </p:selectOneMenu>
+                <p:outputLabel value="magasin:" for="magasinD" />
+                <h:outputText value="#{retournerBean.magasinD.nommagasin}" id="magasinD"/>
+
+                <p:outputLabel value="Libellebonrestitution:" for="libellebonrestitution" />
+                <p:inputText id="libellebonrestitution" value="#{retournerBean.bonrestitution.libellebonrestitution}" title="Libellebonrestitution" />
+
+                <p:commandButton update=":bon,:restitutionMagasin" value="Ajouter Bon" action="#{retournerBean.createBonMagasin()}">
+                    <f:ajax listener="#{retournerBean.init()}"/>
+                </p:commandButton>
+            </p:panelGrid>
+        </h:form>
+    </p:dialog> 
+    <p:dialog appendTo="@(body)" header="liste de bon de restitution" widgetVar="bonDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+
+        <h:form id="bon">
+            <p:dataTable value="#{retournerBean.listeBonAllMagasin}" var="item" 
+                         rows="10" paginator="true"
+                         paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                         rowsPerPageTemplate="5,10,15" widgetVar="bonTab" editable="true" style="margin-bottom:20px"
+                         emptyMessage="No bon found with given criteria" scrollable="true">
+                <p:column>
+                    <f:facet name="header">
+                        <h:outputText value="Numbon"/>
+                    </f:facet>
+                    <h:outputText value="#{item.idbonrestitution}"/>
+                </p:column>
+                <p:column>
+                    <f:facet name="header">
+                        <h:outputText value="Libelle"/>
+                    </f:facet>
+                    <h:outputText value="#{item.libellebonrestitution}"/>
+                </p:column>
+                 <p:column>
+                    <f:facet name="header">
+                        <h:outputText value="magasin Secondaire"/>
+                    </f:facet>
+                     <h:outputText value="#{item.idcodemagasin.nommagasin}"/>
+                </p:column>
+                 <p:column>
+                    <f:facet name="header">
+                        <h:outputText value="magasin primaire"/>
+                    </f:facet>
+                     <h:outputText value="#{item.idcodemagasin.nommagasin}"/>
+                </p:column>
+                <f:facet name="footer">
+                    <p:commandButton value="nouveau" oncomplete="PF('bonnewDialogMagasin').show()"/>
+                </f:facet>
+            </p:dataTable>
+        </h:form>
+    </p:dialog>
+</ui:composition>

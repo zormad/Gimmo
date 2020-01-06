@@ -1,0 +1,131 @@
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui" >
+    <p:dialog appendTo="@(body)" header="création de categorie des agents" widgetVar="categorienewDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+        <h:form>
+            <p:growl><p:autoUpdate/></p:growl>
+            <p:panelGrid columns="2">
+                <p:outputLabel value="Idcategorie:" for="idcategorie" />
+                <p:inputText id="idcategorie" value="#{categorieBean.categorie.idcategorie}" title="Idcategorie" required="true" requiredMessage="The Idcategorie field is required."/>
+                <p:outputLabel value="Descriptioncategorie:" for="descriptioncategorie" />
+                <p:inputText id="descriptioncategorie" value="#{categorieBean.categorie.descriptioncategorie}" title="Descriptioncategorie" />
+                <f:facet name="footer">
+                    <p:commandButton value="save" action="#{categorieBean.create()}" update=":formCat"/>
+                </f:facet>
+            </p:panelGrid>
+        </h:form>
+    </p:dialog>
+    <p:dialog appendTo="@(body)" header="Liste des categories des agents" widgetVar="categorieDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+        <h:form id="formCat">
+            <p:dataTable value="#{categorieBean.liste}" id="categorieTable" var="item" rows="10" paginator="true"
+                         paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                         rowsPerPageTemplate="5,10,15" widgetVar="userTab" editable="true" style="margin-bottom:20px"
+                         emptyMessage="No user found with given criteria" scrollable="true">
+                <p:ajax event="rowEdit" listener="#{categorieBean.update}"/>
+                <p:ajax event="rowEditCancel" listener="#{categorieBean.cancelled()}" />
+                <f:facet name="header">
+                    <p:commandButton id="toggler" type="button" value="Columns" style="float:right" icon="ui-icon-calculator" />
+                    <p:columnToggler datasource="categorieTable" trigger="toggler" />
+                </f:facet>
+                <p:column>
+                    <f:facet name="header">
+                        <h:outputText value="Idcategorie"/>
+                    </f:facet>
+                    <h:outputText value="#{item.idcategorie}"/>
+                </p:column>
+                <p:column>
+                    <f:facet name="header">
+                        <h:outputText value="Descriptioncategorie"/>
+                    </f:facet>
+                    <p:cellEditor>
+                        <f:facet name="output"><h:outputText value="#{item.descriptioncategorie}" /></f:facet>
+                        <f:facet name="input"><p:inputText value="#{item.descriptioncategorie}"/> </f:facet>
+                    </p:cellEditor>
+
+                </p:column>
+                <p:column style="width:32px">
+                    <p:rowEditor />
+                </p:column>
+                <p:column style="width:32px;text-align: center">
+                    <p:commandButton update=":formcategorieInfo"  oncomplete="PF('categorieInfoDialog').show()" icon="ui-icon-search" title="View">
+                        <f:setPropertyActionListener value="#{item}" target="#{categorieBean.selectedCategorie}" />
+                    </p:commandButton>
+                </p:column>
+                <p:column style="width:32px;text-align: center">
+                    <p:commandButton actionListener="#{categorieBean.delete(item)}" icon="ui-icon-close" update=":formCat">
+                        <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert" />
+                    </p:commandButton>
+
+                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                        <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                        <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                    </p:confirmDialog>
+                </p:column>
+                <f:facet name="footer">
+                    <p:commandButton value="nouveau" oncomplete="PF('categorienewDialog').show()"/>
+                </f:facet>
+            </p:dataTable>
+        </h:form>
+    </p:dialog>
+
+    <p:dialog appendTo="@(body)" header="sortie Info" widgetVar="categorieInfoDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+        <h:form id="formcategorieInfo">
+            <p:outputPanel id="categorieDetail" style="text-align:center;">
+                <p:panelGrid  columns="2" rendered="#{not empty categorieBean.selectedCategorie}" columnClasses="label,value">
+                    <h:outputText value="code categorie" />
+                    <h:outputText value="#{categorieBean.selectedCategorie.idcategorie}" />
+                    <h:outputText value="description" />
+                    <h:outputText value="#{categorieBean.selectedCategorie.descriptioncategorie}" />
+
+                    <h:outputText value="cree le" />
+                    <h:outputText value="#{categorieBean.selectedCategorie.creele}"/>
+
+                    <h:outputText value="cree par" />
+                    <h:outputText value="#{categorieBean.selectedCategorie.creepar}"/>
+
+                    <h:outputText value="modifier le" />
+                    <h:outputText value="#{categorieBean.selectedCategorie.modifierle}"/>
+                    <h:outputText value="modifie par" />
+                    <h:outputText value="#{categorieBean.selectedCategorie.modifierpar}"/>
+                </p:panelGrid>
+            </p:outputPanel>
+        </h:form>
+    </p:dialog>
+
+    <p:dialog appendTo="@(body)" header="Listes des categories de #{agentBean.agentSelected.nom} #{agentBean.agentSelected.prenom}" widgetVar="categorielisteDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+        <h:form id="categorieaffectationtab">
+            <p:growl><p:autoUpdate/></p:growl>
+            <p:dataTable value="#{agentBean.agentSelected.agentcatCollection}"  var="item" rows="5" paginator="true"
+                         emptyMessage="pas de changement de categorie" scrollable="true">
+
+                <p:column headerText=" categorie">
+                    <p:outputLabel value="#{item.categorie}"/>
+                </p:column>
+                <p:column headerText=" date debut">
+                    <p:outputLabel value="#{item.dateaff}"/>
+                </p:column>
+                <f:facet name="footer">
+                    <p:commandButton value="nouveau" oncomplete="PF('categorieaffectationDialog').show()"/>
+                </f:facet>
+
+            </p:dataTable>
+        </h:form>
+    </p:dialog>
+    <p:dialog appendTo="@(body)" header="affectation de categorie" widgetVar="categorieaffectationDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false" >
+        <h:form>
+            <p:growl><p:autoUpdate/></p:growl>
+            <p:panelGrid columns="2">
+                <p:outputLabel value="Idcategorie:" for="idcategorie" />
+                <p:selectOneMenu id="idcategorie" value="#{categorieBean.categorie.idcategorie}">
+                    <f:selectItems value="#{categorieBean.liste}" var="categorie" itemLabel="#{categorie.idcategorie}" itemValue="#{categorie.idcategorie}"/>
+                </p:selectOneMenu>
+                <f:facet name="footer">
+                    <p:commandButton value="affecter" action="#{categorieBean.createaffectation(agentBean.agentSelected)}" update=":categorieaffectationtab"/>
+                </f:facet>
+            </p:panelGrid>
+        </h:form>
+    </p:dialog>
+</ui:composition>

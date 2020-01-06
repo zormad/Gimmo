@@ -1,0 +1,121 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"  
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui">
+    <p:accordionPanel widgetVar="famille" >
+        <p:tab title="famille">
+            <p:dialog appendTo="@(body)" header="création de famille d'equipement" widgetVar="famillenewDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                <h:form>
+                    <p:growl><p:autoUpdate/></p:growl>
+                    <p:panelGrid columns="2">
+                        <p:outputLabel value="groupe:" for="groIdgroupe" />
+                        <p:selectOneMenu id="groIdgroupe" value="#{familleBean.groupe.idgroupe}" required="true" requiredMessage="The GroIdgroupe field is required.">
+                            <!-- TODO: update below reference to list of available items-->
+                            <f:selectItem itemLabel="Select One" itemValue=""/>
+                            <f:selectItems value="#{groupeBean.listeGroupe}" var="groupeF" itemLabel="#{groupeF.nomgroupe}" itemValue="#{groupeF.idgroupe}"/>
+                        </p:selectOneMenu>
+                        <p:outputLabel value="Code famille:" for="codefamille" />
+                        <p:inputText id="codefamille" value="#{familleBean.famille.codefamille}" title="Codefamille" required="true" requiredMessage="The Codefamille field is required."/>
+                        <p:outputLabel value="Nom famille:" for="nomfamille" />
+                        <p:inputText id="nomfamille" value="#{familleBean.famille.nomfamille}" title="Nomfamille" />
+                        <p:commandButton value="save" action="#{familleBean.createFamille()}" update="@widgetVar(famille)"/>
+                    </p:panelGrid>
+                </h:form>
+            </p:dialog>
+            <h:form id="tabFamille">
+                <p:growl id="growl"><p:autoUpdate/></p:growl>
+                <p:dataTable value="#{familleBean.listeFamille}" var="item" id="familleTable" rows="10" paginator="true"
+                             paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                             rowsPerPageTemplate="5,10,15" widgetVar="familleTab" editable="true" style="margin-bottom:20px"
+                             emptyMessage="No famille found with given criteria" scrollable="true">
+                    <p:ajax event="rowEdit" listener="#{familleBean.updateFamille}"/>
+                    <p:ajax event="rowEditCancel" listener="#{familleBean.cancelledFamille()}" />
+                    <f:facet name="header">
+                        Liste de familles d'article
+
+                        <p:commandButton id="toggler" type="button" value="Columns" style="float:right" icon="ui-icon-calculator" />
+                        <p:columnToggler datasource="familleTable" trigger="toggler" />
+                    </f:facet>
+                    <p:column sortBy="#{item.codefamille}" filterBy="#{item.codefamille}">
+                        <f:facet name="header">
+                            <h:outputText value="Codefamille"/>
+                        </f:facet>
+                        <h:outputText value="#{item.codefamille}"/>
+                    </p:column>
+                    <p:column sortBy="#{item.nomfamille}" filterBy="#{item.nomfamille}">
+                        <f:facet name="header">
+                            <h:outputText value="Nomfamille"/>
+                        </f:facet>
+                        <p:cellEditor>
+                            <f:facet name="output"><h:outputText value="#{item.nomfamille}" /></f:facet>
+                            <f:facet name="input"><p:inputText value="#{item.nomfamille}" style="width:100%"/></f:facet>
+                        </p:cellEditor>
+                    </p:column>
+                    <p:column sortBy="#{item.idgroupe.nomgroupe}">
+                        <f:facet name="header">
+                            <h:outputText value="groupe"/>
+                        </f:facet>
+                        <p:cellEditor>
+                            <f:facet name="output"><h:outputText value="#{item.idgroupe.nomgroupe}" /></f:facet>
+                            <f:facet name="input">
+                                <h:selectOneMenu value="#{item.idgroupe.idgroupe}">
+                                    <f:selectItems value="#{groupeBean.listeGroupe}" var="groupe" itemLabel="#{groupe.nomgroupe}" itemValue="#{groupe.idgroupe}"/>
+                                </h:selectOneMenu>
+                            </f:facet>
+                        </p:cellEditor>
+                    </p:column>
+                    <p:column style="width:32px">
+                        <p:rowEditor />
+                    </p:column>
+                    <p:column style="width:32px;text-align: center">
+                        <p:commandButton update="@widgetVar(famille)"  oncomplete="PF('familleDialog').show()" icon="ui-icon-search" title="View">
+                            <f:setPropertyActionListener value="#{item}" target="#{familleBean.selectedFamille}" />
+                        </p:commandButton>
+                    </p:column>
+                    <p:column style="width:32px;text-align: center">
+                        <p:commandButton actionListener="#{familleBean.deleteFamille(item)}" icon="ui-icon-close" update="@widgetVar(famille)">
+                            <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert" />
+                        </p:commandButton>
+
+                        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                            <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                        </p:confirmDialog>
+                    </p:column>
+                    <f:facet name="footer">
+                        <p:commandButton value="nouveau" oncomplete="PF('famillenewDialog').show()"/>
+                    </f:facet>
+                </p:dataTable>
+                <p:dialog header="famille Info" widgetVar="familleDialog" modal="false" showEffect="fade" hideEffect="fade" resizable="false">
+                    <p:outputPanel id="familleDetail" style="text-align:center;">
+                        <p:panelGrid  columns="2" rendered="#{not empty familleBean.selectedFamille}" columnClasses="label,value">
+
+                            <h:outputText value="code famille" />
+                            <h:outputText value="#{familleBean.selectedFamille.codefamille}" />
+
+                            <h:outputText value="libelle famille" />
+                            <h:outputText value="#{familleBean.selectedFamille.nomfamille}"/>
+
+                            <h:outputText value="libelle du groupe" />
+                            <h:outputText value="#{familleBean.selectedFamille.idgroupe.nomgroupe}" />
+
+                            <h:outputText value="cree Le" />
+                            <h:outputText value="#{familleBean.selectedFamille.creele}"/>
+
+                            <h:outputText value="cree Par" />
+                            <h:outputText value="#{familleBean.selectedFamille.creepar}"/>
+
+                            <h:outputText value="modifier Le" />
+                            <h:outputText value="#{familleBean.selectedFamille.modifiele}"/>
+
+                            <h:outputText value="modifie Par" />
+                            <h:outputText value="#{familleBean.selectedFamille.modifiepar}"/>
+                        </p:panelGrid>
+                    </p:outputPanel>
+                </p:dialog>
+            </h:form>
+        </p:tab>
+    </p:accordionPanel>
+</ui:composition>
+

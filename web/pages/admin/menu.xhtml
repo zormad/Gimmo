@@ -1,0 +1,62 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"  
+                xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui" 
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+
+    <p:panelMenu>
+        <p:submenu label="Magasin">
+            <p:menuitem value="Entrée d'équipement" url="/pages/admin/equipements/createEquipement.xhtml"/>
+            <c:if test="#{dotationBean.selectedbondemande.idbondemande!=null}">
+                <p:menuitem value="Dotation d'équipements" url="/pages/admin/dotation/dotation.xhtml" />
+            </c:if>
+            <c:if test="#{dotationBean.selectedbondemande.idbondemande==null}">
+                <p:menuitem value="Dotation d'équipements" url="/pages/admin/dotation/dotation.xhtml" />
+            </c:if>
+           <p:menuitem value="Affectation d'équipements" url="/pages/admin/affectation/affectation.xhtml"/>
+            <p:menuitem value="demande de dotation" url="/pages/admin/dotation/demandedotation.xhtml"/>
+            <p:menuitem value="sortie d'équipements" url="/pages/admin/sorties/sortieequipement.xhtml"/>
+            <p:submenu label="retourner des équipements">
+                <p:menuitem value="Retourner au magasin secondaire" url="/pages/admin/restitution/retournerposte.xhtml"/>
+                <p:menuitem value="Retourner au magasin principal" url="/pages/admin/restitution/retournermagasin.xhtml"/>
+            </p:submenu>
+            <p:submenu label="saisie">
+                <p:menuitem value="bésoins  annuels" url="/pages/admin/saisies/besoins.xhtml"/>
+                <p:menuitem value="prévisions  annuels" url="/pages/admin/saisies/previsions.xhtml"/>
+            </p:submenu>
+        </p:submenu>
+        <p:submenu label="Statistique">
+            <p:menuitem value="Etat d'exécution" url="/pages/admin/etatExecution/etatExecution.xhtml"/>
+            <p:menuitem value="Elaborer un grand livre" url="#"/>
+            <p:menuitem value="Journal des mouvements" url="/pages/admin/journalDeMouvement/journalDeMouvement.xhtml"/>
+            <p:menuitem value="Etat de répartition" url="/pages/admin/etatDeRepartition/etatDeRepartition.xhtml"/>
+            <p:menuitem value="Statistique des entées" url="#"/>
+            <p:menuitem value="Statistique des sorties" url="#"/>
+        </p:submenu>
+        <p:submenu label="Administration" >
+            <p:submenu label="equipements" >
+                <p:menuitem  value="Article" url="/pages/admin/equipements/article.xhtml" />
+                <p:menuitem value="fournisseur" url="/pages/admin/equipements/uifournisseur.xhtml"/> 
+                <p:menuitem value="etat d'équipement" url="/pages/admin/equipements/uietat.xhtml"/> 
+                <p:menuitem value="source de financement" url="/pages/admin/equipements/uisource.xhtml"/> 
+                <p:menuitem value="marque d'équipement" url="/pages/admin/equipements/uimarque.xhtml"/> 
+            </p:submenu>
+            <p:submenu label="structure">
+                <p:menuitem value="magasin" url="/pages/admin/structures/magasin.xhtml"/> 
+                <p:menuitem value="structure" url="/pages/admin/structures/createStructure.xhtml" />
+            </p:submenu>
+            <p:submenu label="services">
+                <p:menuitem value="service" url="/pages/admin/services/service.xhtml" />
+                <p:menuitem value="poste" url="/pages/admin/services/postedetravail.xhtml" />
+                <p:menuitem value="create agent" url="/pages/admin/services/createAgent.xhtml" />
+            </p:submenu>
+            <p:submenu label="utilisateurs">
+                <p:menuitem value="Gestion des utilisateurs" url="/pages/admin/utilisateur/createuser.xhtml" />
+                <p:menuitem value="Profils" url="/pages/admin/utilisateur/createprofil.xhtml" />
+                <p:menuitem value="role" url="/pages/admin/utilisateur/role.xhtml" />
+            </p:submenu>
+            <p:menuitem value="sortie" url="/pages/admin/sorties/sortie.xhtml"/> 
+        </p:submenu>
+
+    </p:panelMenu>
+</ui:composition>

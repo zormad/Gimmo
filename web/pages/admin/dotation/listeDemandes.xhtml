@@ -1,0 +1,74 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+    <h:head>
+        <title>Facelet Title</title>
+    </h:head>
+    <h:body>
+        <ui:composition template="../template.xhtml">
+            <ui:define name="content">
+                <h:form id="listedemandes">
+                    <p:dataTable value="#{dotationBean.listeDemandes}" var="item" rows="5" paginator="true"
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 style="margin-bottom:20px"
+                                 emptyMessage="pas de demande de dotation" scrollable="true" selectionMode="single" selection="#{dotationBean.selectedbondemande}" rowKey="#{item.idbondemande}" >
+
+                        <p:ajax event="rowSelect" update="listedemandes,:details" listener="#{dotationBean.afterSelect()}"/>
+                        <p:ajax event="rowUnselect" update="listedemandes" />
+                        <p:column filterBy="demande numéro:#{item.idbondemande} " sortBy="demande numéro:#{item.idbondemande}">
+                            <f:facet name="header">
+                                <h:outputText value="demande de dotation"/>
+                            </f:facet>
+                            <h:outputText value="demande numéro:#{item.idbondemande}"/>
+                        </p:column>
+                        <p:column filterBy="#{item.magasin.nommagasin}">
+                            <f:facet name="header">
+                                <h:outputText value="Magasin"/>
+                            </f:facet>
+                            <h:outputText value="#{item.magasin.nommagasin}"/>
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="Date"/>
+                            </f:facet>
+                            <h:outputText value="#{item.creele}">
+                                <f:convertDateTime pattern="MM/dd/yyyy HH:mm:ss" />
+                            </h:outputText>
+                        </p:column>
+                        <f:facet name="footer">
+                            <p:commandButton value="doter"  action="/pages/admin/dotation/dotation.xhtml" rendered="#{(dotationBean.selectedbondemande.idbondemande!=null) and (dotationBean.listeDemandes.size()>0)}">
+                                <f:ajax listener="#{dotationBean.afterDemande()}"/>
+                            </p:commandButton>
+                            <p:commandButton  rendered="#{(dotationBean.selectedbondemande.idbondemande!=null) and (dotationBean.listeDemandes.size()>0)}" value="details" type="button" onclick="PF('DetailsDialog').show();" update=":details"/>
+                        </f:facet>
+                    </p:dataTable>
+                </h:form>
+                <p:dialog appendTo="@(body)" widgetVar="DetailsDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                    <h:form id="details">
+                        <p:dataTable id="bonliste" value="#{dotationBean.selectedbondemande.demandeCollection}" var="item">
+                            <f:facet name="header">Liste des articles demandés </f:facet>
+
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="article "/>
+                                </f:facet>
+                                <h:outputText value="#{item.article.designation}"/>
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Quantite demandée"/>
+                                </f:facet>
+                                <h:outputText value="#{item.quantite}"/>
+                            </p:column>
+                        </p:dataTable>
+                    </h:form>
+                </p:dialog>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>

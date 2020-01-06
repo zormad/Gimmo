@@ -1,0 +1,141 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:head>
+        <title>Facelet Title</title>
+    </h:head>
+    <h:body>
+        <ui:composition template="template.xhtml">
+            <ui:define name="content">
+                <h:form>
+                    <p:growl id="growl"><p:autoUpdate/></p:growl>
+                    <h1><h:outputText value="Création de magasin"/></h1>
+                    <p:panelGrid columns="2">
+                        <p:outputLabel value="code magasin:" for="idcodemagasin" />
+                        <p:inputText id="idcodemagasin" value="#{magasinBean.magasin.idcodemagasin}" title="Idcodemagasin" required="true" requiredMessage="The Idcodemagasin field is required."/>
+                        <p:outputLabel value="libelle magasin:" for="nommagasin" />
+                        <p:inputText id="nommagasin" value="#{magasinBean.magasin.nommagasin}" title="Nommagasin" />
+
+                        <p:outputLabel value="type du magasin:" for="idtypemag" />
+                        <p:selectOneMenu id="idtypemag" value="#{magasinBean.typemagasin.idtypemag}" required="true" requiredMessage="The Idtypemag field is required.">
+                            <!-- TODO: update below reference to list of available items-->
+                            <f:selectItems value="#{magasinBean.listeTypemagasins}" var="type" itemLabel="#{type.libelletypemag}" itemValue="#{type.idtypemag}"/>
+                        </p:selectOneMenu>
+                        <f:facet name="footer">
+                            <p:commandButton value="save" action="#{magasinBean.createMagasin()}" update=":form"/>
+                        </f:facet>
+                    </p:panelGrid>
+                </h:form>
+                <h:form id="form">
+                    <p:growl><p:autoUpdate/></p:growl>
+
+                    <h1><h:outputText value="Liste de magasin"/></h1>
+                    <p:dataTable value="#{magasinBean.liste}" var="item" id="magasinTable" 
+                                 rows="10" paginator="true" paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rowsPerPageTemplate="5,10,15" widgetVar="magasinTab" editable="true" style="margin-bottom:20px"
+                                 emptyMessage="No magasin found with given criteria" scrollable="true" >
+                        <p:ajax event="rowEdit" listener="#{magasinBean.update}"/>
+                        <p:ajax event="rowEditCancel" listener="#{magasinBean.cancelled()}" />
+                        <p:column sortBy="#{item.idcodemagasin}" filterBy="#{item.idcodemagasin}">
+                            <f:facet name="header">
+                                <h:outputText value="Idcodemagasin"/>
+                            </f:facet>
+                            <h:outputText value="#{item.idcodemagasin}"/>
+                        </p:column>
+                        <p:column sortBy="#{item.nommagasin}" filterBy="#{item.nommagasin}">
+                            <f:facet name="header">
+                                <h:outputText value="Nommagasin"/>
+                            </f:facet>
+                            <p:cellEditor>
+                                <f:facet name="output"><h:outputText value="#{item.nommagasin}" /></f:facet>
+                                <f:facet name="input"><h:outputText value="#{item.nommagasin}"/></f:facet>
+                            </p:cellEditor>
+
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="structure"/>
+                            </f:facet>
+                            <p:cellEditor>
+                                <f:facet name="output"><h:outputText value="#{item.codestructure.codestructure}" /></f:facet>
+                                <f:facet name="input">
+                                    <h:selectOneMenu value="#{item.codestructure.codestructure.codestructure}">
+                                        <f:selectItems value="#{structureBean.liste}" var="structure" itemLabel="#{structure.libellestructure}" itemValue="#{structure.codestructure}"/>
+                                    </h:selectOneMenu>
+                                </f:facet>
+                            </p:cellEditor>
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="type de magasin"/>
+                            </f:facet>
+                            <f:facet name="output"><h:outputText value="#{item.idtypemag.idtypemag}" /></f:facet>
+                            <f:facet name="input">
+                                <h:selectOneMenu value="#{item.idtypemag.idtypemag}">
+                                    <f:selectItems value="#{magasinBean.listeTypemagasins}" var="type" itemLabel="#{type.libelletypemag}" itemValue="#{type.idtypemag}"/>
+                                </h:selectOneMenu>
+                            </f:facet>
+                        </p:column>
+
+                        <p:column style="width:32px">
+                            <p:rowEditor />
+                        </p:column>
+                        <p:column style="width:32px;text-align: center">
+                            <p:commandButton update=":form"  oncomplete="PF('magasinDialog').show()" icon="ui-icon-search" title="View">
+                                <f:setPropertyActionListener value="#{item}" target="#{magasinBean.selectedmagasin}" />
+                            </p:commandButton>
+                        </p:column>
+                        <p:column style="width:32px;text-align: center">
+                            <p:commandButton actionListener="#{magasinBean.delete(item)}" icon="ui-icon-close" update=":form">
+                                <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert" />
+                            </p:commandButton>
+
+                            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                                <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                                <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                            </p:confirmDialog>
+                        </p:column>
+                    </p:dataTable>
+                    <p:dialog header="magasin Info" widgetVar="magasinDialog" modal="false" showEffect="fade" hideEffect="fade" resizable="false">
+                        <p:outputPanel id="magasinDetail" style="text-align:center;">
+                            <p:panelGrid  columns="2" rendered="#{not empty magasinBean.selectedmagasin}" columnClasses="label,value">
+
+                                <h:outputText value="code du magasin" />
+                                <h:outputText value="#{magasinBean.selectedmagasin.idcodemagasin}" />
+
+                                <h:outputText value="libelle du magasin" />
+                                <h:outputText value="#{magasinBean.selectedmagasin.nommagasin}"/>
+
+                                <h:outputText value="structure" />
+                                <h:outputText value="#{magasinBean.selectedmagasin.codestructure.libellestructure}" />
+
+                                <h:outputText value="type de structure" />
+                                <h:outputText value="#{structureBean.selectedStructure.idtypestruct.libelletypestruct}" />
+
+                                <h:outputText value="type du magasin" />
+                                <h:outputText value="#{magasinBean.selectedmagasin.idtypemag.libelletypemag}"/>
+
+                                <h:outputText value="cree Le" />
+                                <h:outputText value="#{magasinBean.selectedmagasin.creele}"/>
+
+                                <h:outputText value="cree Par" />
+                                <h:outputText value="#{magasinBean.selectedmagasin.creepar}"/>
+
+                                <h:outputText value="modifier Le" />
+                                <h:outputText value="#{magasinBean.selectedmagasin.modifiele}"/>
+
+                                <h:outputText value="modifie Par" />
+                                <h:outputText value="#{magasinBean.selectedmagasin.modifiepar}"/>
+                            </p:panelGrid>
+                        </p:outputPanel>
+                    </p:dialog>
+                </h:form>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
+

@@ -1,0 +1,158 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+    <h:head>
+        <title>Facelet Title</title>
+    </h:head>
+    <h:body>
+        <ui:composition template="../template.xhtml">
+            <ui:define name="content">
+
+                <h:form id="besoins">
+                    <p:outputLabel value="Structure" for="structure"/>
+                    <p:selectOneMenu id="structure" value="#{besoinBean.structure.codestructure}"   required="true" requiredMessage="The structure field is required.">
+                        <!-- TODO: update below reference to list of available items-->
+                        <f:ajax listener="#{besoinBean.changeValues()}" render="@form"/>
+                        <p:ajax update=":flisteservices"/>
+                        <f:selectItem itemValue="" itemLabel="select One"/>
+                        <f:selectItems value="#{structureBean.liste}" var="structure" itemLabel="#{structure.libellestructure}" itemValue="#{structure.codestructure}"/>
+                    </p:selectOneMenu>
+                    <c:if test="#{besoinBean.structure.codestructure!=null}">
+                        <p:dataTable value="#{anneeBean.listeAnnee}" var="item" rows="5" paginator="true"
+                                     paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                     style="margin-bottom:20px"
+                                     emptyMessage="liste vide" scrollable="true" selectionMode="single" selection="#{besoinBean.selectedAnnee}" rowKey="#{item.anneeid}">
+                            <p:ajax event="rowSelect" update=":besoins" />
+                            <p:ajax event="rowUnselect" update=":besoins" />
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Annee"/>
+                                </f:facet>
+                                <h:outputText value="besoins de l'année: #{item.anneeid}"/>
+                            </p:column>
+                            <f:facet name="footer">
+                                <p:commandButton value="Nouveau" type="button" onclick="PF('anneenewDialog').show();" >
+                                    <p:ajax update=":flisteservices"/>
+                                </p:commandButton>
+                                <p:commandButton value="Services" rendered="#{besoinBean.selectedAnnee.anneeid!=null}" type="button" onclick="PF('listeservices').show();" >
+                                    <p:ajax update=":flisteservices"/>
+                                </p:commandButton>
+                            </f:facet>
+                        </p:dataTable>
+                    </c:if>
+                </h:form>
+                <p:dialog appendTo="@(body)" header="création d'année" widgetVar="anneenewDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                    <h:form> 
+                        <p:panelGrid columns="2">
+                            <p:outputLabel value="Anneeid:" for="anneeid" />
+                            <p:inputText id="anneeid" value="#{anneeBean.annee.anneeid}" title="Anneeid" required="true" requiredMessage="The Anneeid field is required."/>
+                            <f:facet name="footer">
+                                <p:commandButton value="Ajouter" update=":besoins" action="#{anneeBean.add()}"/>
+                            </f:facet>
+                        </p:panelGrid>
+
+                    </h:form>
+                </p:dialog> 
+                <p:dialog appendTo="@(body)" header="annee  " widgetVar="nouveau" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                    <h:form id="nouveau">
+                        <p:panelGrid columns="2">
+                            <p:outputLabel value="Article:" for="article" />
+                            <p:selectOneMenu id="article" value="#{besoinBean.a.codearticle}" required="true" requiredMessage="The Article field is required.">
+                                <!-- TODO: update below reference to list of available items-->
+                                <f:ajax listener="#{besoinBean.setArticle}"/>
+                                <f:selectItem itemLabel="SELECTIONNEZ UN" itemValue=""/>
+                                <f:selectItems value="#{besoinBean.listedesArticles}" var="article" itemLabel="#{article.designation}" itemValue="#{article.codearticle}"/>
+                            </p:selectOneMenu>
+                            <p:outputLabel value="Quantite:" for="quantite" />
+                            <p:inputText id="quantite" value="#{besoinBean.besoins.quantite}" title="Quantite" />
+
+                            <p:commandButton value="Ajouter" actionListener="#{besoinBean.addToBesoins()}" update=":listedesbesoinsParservice,:nouveau"/>
+
+                        </p:panelGrid>
+                    </h:form>
+                </p:dialog>
+                <p:dialog appendTo="@(body)" header="liste des services  " widgetVar="listeservices" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                    <h:form id="flisteservices">
+                        <p:dataTable value="#{besoinBean.structure.serviceCollection}" var="item" rows="5" paginator="true"
+                                     paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                     style="margin-bottom:20px"
+                                     emptyMessage="pas de service" scrollable="true" selectionMode="single" selection="#{besoinBean.selectedService}" rowKey="#{item.codeservice}">
+                            <p:ajax event="rowSelect" update=":flisteservices,@widgetVar(listebesoinsservices)" listener="#{besoinBean.setBesoinCollection()}" />
+                            <p:ajax event="rowUnselect" update=":flisteservices" />
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Codeservice"/>
+                                </f:facet>
+                                <h:outputText value="#{item.codeservice}"/>
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Libelleservice"/>
+                                </f:facet>
+                                <h:outputText value="#{item.libelleservice}"/>
+                            </p:column>
+                            <f:facet name="footer">
+                                <h:form id="listeservicesfooter">
+                                    <p:commandButton update=":listedesbesoinsParservice" value="liste des besoins " type="button" rendered="#{besoinBean.selectedService.codeservice!=null}" onclick="PF('listebesoinsservices').show();" >
+
+                                    </p:commandButton>
+                                </h:form>
+                            </f:facet>
+                        </p:dataTable>
+                    </h:form>
+                </p:dialog>
+                <p:dialog appendTo="@(body)" header="liste des besoins du service: #{besoinBean.selectedService.libelleservice}  " widgetVar="listebesoinsservices" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                    <h:form id="listedesbesoinsParservice">
+                        <p:dataTable value="#{besoinBean.listeb}" var="b" rows="5" paginator="true"
+                                     paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                     rowsPerPageTemplate="5,10,15"  editable="true" style="margin-bottom:20px"
+                                     emptyMessage="pas de besoins satisfaisant vos critères">
+
+                            <p:ajax event="rowEdit" listener="#{besoinBean.update}"/>
+                            <p:ajax event="rowEditCancel" listener="#{besoinBean.cancelled()}" />
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Article"/>
+                                </f:facet>
+                                <h:outputText value="#{b.article.designation}"/>
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Quantite"/>
+                                </f:facet>
+                                <p:cellEditor>
+                                    <f:facet name="output"><h:outputText value="#{b.quantite}" /></f:facet>
+                                    <f:facet name="input"><p:inputText value="#{b.quantite}" style="width:100%"/></f:facet>
+                                </p:cellEditor>
+                            </p:column>
+                            <p:column style="width:32px">
+                                <p:rowEditor />
+                            </p:column>
+                            <p:column style="width:32px;text-align: center">
+                                <p:commandButton actionListener="#{besoinBean.delete(b)}" icon="ui-icon-close" update=":nouveau,:listedesbesoinsParservice">
+                                    <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert" />
+                                </p:commandButton>
+
+                                <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                                    <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                                    <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                                </p:confirmDialog>
+                            </p:column>
+                            <f:facet name="footer">
+                                <p:commandButton value="Nouveau" type="button" onclick="PF('nouveau').show();" >
+                                    <p:ajax update=":nouveau"/>
+                                </p:commandButton>
+                            </f:facet>
+                        </p:dataTable>
+                    </h:form>
+                </p:dialog>
+
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>

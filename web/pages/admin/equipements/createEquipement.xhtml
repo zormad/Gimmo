@@ -1,0 +1,233 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+    <h:head>
+        <title>Facelet Title</title>
+    </h:head>
+    <h:body>
+        <ui:composition template="../template.xhtml">
+            <ui:define name="content">
+                <ui:include src="bon.xhtml"/>
+                <h:form id="include">
+                    <p:growl><p:autoUpdate/></p:growl>
+                    <p:commandButton id="nouveauBon" value=" bon d'entrée" type="button" onclick="PF('bonDialog').show();" update="@form" ajax="false"/>
+                    <c:if test="#{equipUtilBean.bon.numbon!=null}">
+                        <p:commandButton  id="validerBon" value="valider le bon d'entrée" type="button" onclick="PF('validerBon').show();" update="@form"/>
+                    </c:if>
+                </h:form>
+                <h:form id="equipement">
+                    <p:growl><p:autoUpdate/></p:growl>
+                    <p:panelGrid columns="2">
+                        <p:outputLabel for="choix" value="choix du magasin"/>
+                        <p:selectOneRadio id="choix" value="#{equipUtilBean.entreeMagasin}">
+                            <f:ajax listener="#{equipUtilBean.changealues()}" render="@form" />
+                            <p:ajax update=":bon"/>
+                            <f:selectItem itemValue="secondaire" itemLabel="Magasin sécondaire"/>
+                            <f:selectItem itemValue="principal" itemLabel="Magasin principal"/>
+                        </p:selectOneRadio>
+                        <c:if test="#{equipUtilBean.entreeMagasin=='secondaire'}">
+                            <p:outputLabel value="Structure:" for="structure" />
+                            <p:selectOneMenu id="structure" value="#{equipUtilBean.structure.codestructure}"   required="true" requiredMessage="The structure field is required.">
+                                <!-- TODO: update below reference to list of available items-->
+                                <f:ajax listener="#{equipUtilBean.changealuesstructure()}" render="@form"/>
+                                <p:ajax update=":bon,:include,@widgetVar(bonnewDialog)"/>
+                                <f:selectItem itemValue="" itemLabel="select One"/>
+                                <f:selectItems actionListener="magasinT" value="#{structureBean.liste}" var="structure" itemLabel="#{structure.libellestructure}" itemValue="#{structure.codestructure}"/>
+                            </p:selectOneMenu>
+                            <p:outputLabel value="Magasin:" for="magasinT" />
+                            <h:outputText id="magasinT"  value="#{equipUtilBean.magasin.nommagasin}"/>
+                        </c:if>
+                        <c:if test="#{equipUtilBean.entreeMagasin=='principal'}">
+                            <p:outputLabel value="Magasin" for="magasin" />
+                            <p:selectOneMenu id="magasin" value="#{equipUtilBean.magasin.idcodemagasin}"   required="true" requiredMessage="The structure field is required.">
+                                <!-- TODO: update below reference to list of available items-->
+                                <f:ajax listener="#{equipUtilBean.changealuesmagasin()}" render="@form"/>
+                                <p:ajax update=":bon,:include,@form,@widgetVar(bonnewDialog)"/>
+                                <f:selectItem itemValue="" itemLabel="select One"/>
+                                <f:selectItems value="#{equipUtilBean.listeMagasinsP}" var="mag" itemValue="#{mag.idcodemagasin}" itemLabel="#{mag.nommagasin}"/>
+                            </p:selectOneMenu>
+                        </c:if>
+                        <p:outputLabel value="Bon:" for="cbon" />
+                        <p:selectOneMenu  id="cbon" value="#{equipUtilBean.bon.numbon}" required="true" requiredMessage="The bon field is required.">
+                            <!-- TODO: update below reference to list of available items-->
+                            <f:ajax listener="#{equipUtilBean.updatebon()}" render="@form"/>
+                            <f:ajax render=":include"  />
+                            <p:ajax update="@widgetVar(validerBon)"  />
+                            <f:selectItem itemValue="" itemLabel="select One"/>
+                            <f:selectItems value="#{equipUtilBean.listeBon}" var="bon" itemLabel="#{bon.libelle}" itemValue="#{bon.numbon}"/>
+                        </p:selectOneMenu>
+                    </p:panelGrid>
+                    <p:dataTable id="listeEquipement" value="#{equipUtilBean.liste}" 
+                                 var="item" rows="10" paginator="true"
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rowsPerPageTemplate="5,10,15" editable="true" style="margin-bottom:20px"
+                                 emptyMessage="No equipement found with given criteria">
+                        <c:if test="#{equipUtilBean.bon.numbon!=null}">
+                            <f:facet name="header">
+                                <c:if test="#{equipUtilBean.bon.valider=='false'}">
+                                    <p:commandButton value="Nouveau" type="button" onclick="PF('nouveauEquipement').show();" />
+                                    <p:commandButton  value="valider" type="button" onclick="PF('validerBon').show();"  ajax="false"/>
+                                </c:if>
+                                <p:commandButton ajax="false" value="Imprimer" disabled="#{equipUtilBean.liste.size()==0}" actionListener="#{equipUtilBean.printPdf()}"/>
+                            </f:facet>
+                        </c:if>
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="Idequip"/>
+                            </f:facet>
+                            <h:outputText value="#{item.idequip}"/>
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="Date d'acquisition"/>
+                            </f:facet>
+                            <h:outputText value="#{item.dateacqui}"> 
+                                <f:convertDateTime pattern="MM/dd/yyyy HH:mm:ss" />
+                            </h:outputText>
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="Cout d'acquisition"/>
+                            </f:facet>
+                            <h:outputText value="#{item.coutacqui}"/>
+                        </p:column>
+
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="article"/>
+                            </f:facet>
+                            <h:outputText value="#{item.codearticle.designation}"/>
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="etat"/>
+                            </f:facet>
+                            <h:outputText value="#{item.idetat.libelleetat}"/>
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="marque"/>
+                            </f:facet>
+                            <h:outputText value="#{item.idmarque.nommarque}"/>
+                        </p:column>
+                        <c:if test="#{equipUtilBean.bon.numbon!=null}">
+                            <f:facet name="footer">
+                                <c:if test="#{equipUtilBean.bon.valider=='false'}">
+                                    <p:commandButton value="Nouveau" type="button" onclick="PF('nouveauEquipement').show();" />
+                                </c:if>
+                            </f:facet>
+                        </c:if>
+                    </p:dataTable>
+                </h:form>
+                <p:dialog appendTo="@(body)" header="Nouveau Equipement" widgetVar="nouveauEquipement" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                    <h:form>
+                        <p:panelGrid columns="2">
+                            <p:outputLabel value="quantite:" for="quantite" />
+                            <p:inputText id="quantite" value="#{equipUtilBean.quantite}" title="quantite" >
+
+                            </p:inputText>
+
+                            <p:outputLabel value="Cout unitaire d'acquision:" for="coutacqui" />
+                            <p:inputText id="coutacqui" value="#{equipUtilBean.equipement.coutacqui}" title="Coutacqui">
+
+                            </p:inputText>
+                            <p:outputLabel value="Codearticle:" for="codearticle" />
+                            <p:selectOneMenu id="codearticle" value="#{equipUtilBean.article.codearticle}" required="true" requiredMessage="The Codearticle field is required.">
+                                <!-- TODO: update below reference to list of available items-->
+                                <f:selectItems value="#{articleBean.listeArticle}" var="article" itemLabel="#{article.designation}" itemValue="#{article.codearticle}"/>
+                            </p:selectOneMenu>
+                            <p:outputLabel value="Idmarque:" for="idmarque" />
+                            <p:selectOneMenu id="idmarque" value="#{equipUtilBean.marque.idmarque}" required="true" requiredMessage="The Idmarque field is required.">
+                                <!-- TODO: update below reference to list of available items-->
+                                <f:selectItems value="#{equipUtilBean.listeMarque}" var="marque" itemLabel="#{marque.nommarque}" itemValue="#{marque.idmarque}"/>
+                            </p:selectOneMenu>
+                            <f:facet name="footer">
+                                <p:commandButton value="Ajouter Equipement" action="#{equipUtilBean.create()}" update=":equipement,@widgetVar(validerBon)"/>
+                            </f:facet>
+                        </p:panelGrid>
+                    </h:form>
+                </p:dialog>
+                <p:dialog appendTo="@(body)" header="Equipements du bon d'entrée #{equipUtilBean.bon.numbon} #{equipUtilBean.bon.libelle}" widgetVar="validerBon" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                    <h:form>
+                        <p:dataTable id="listevaliderBon" value="#{equipUtilBean.liste}" 
+                                     var="item" rows="10" paginator="true"
+                                     paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                     rowsPerPageTemplate="5,10,15" editable="true" style="margin-bottom:20px"
+                                     emptyMessage="No equipement found with given criteria">
+                            <f:facet name="header">
+                                <c:if test="#{equipUtilBean.bon.valider=='false'}">
+                                    <p:commandButton update=":include,:equipement,@widgetVar(validerBon)" value="Valider" actionListener="#{equipUtilBean.updateBon()}" >
+                                        <p:confirm header="Confirmation" message="Etes vous sûr?" icon="ui-icon-alert" />
+                                    </p:commandButton>
+
+                                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                                        <p:commandButton value="Oui" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                                        <p:commandButton value="Oui" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                                    </p:confirmDialog>
+                                </c:if>
+                            </f:facet>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Idequip"/>
+                                </f:facet>
+                                <h:outputText value="#{item.idequip}"/>
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Date d'acquisition"/>
+                                </f:facet>
+                                <h:outputText value="#{item.dateacqui}"> 
+                                    <f:convertDateTime pattern="MM/dd/yyyy HH:mm:ss" />
+                                </h:outputText>
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Cout d'acquisition"/>
+                                </f:facet>
+                                <h:outputText value="#{item.coutacqui}"/>
+                            </p:column>
+
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="article"/>
+                                </f:facet>
+                                <h:outputText value="#{item.codearticle.designation}"/>
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="etat"/>
+                                </f:facet>
+                                <h:outputText value="#{item.idetat.libelleetat}"/>
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="marque"/>
+                                </f:facet>
+                                <h:outputText value="#{item.idmarque.nommarque}"/>
+                            </p:column>
+                            <f:facet name="footer">
+                                <c:if test="#{equipUtilBean.bon.valider=='false'}">
+                                    <p:commandButton update=":include,:equipement,@widgetVar(validerBon)" value="Valider" actionListener="#{equipUtilBean.updateBon()}" >
+                                        <p:confirm header="Confirmation" message="Etes vous sûr?" icon="ui-icon-alert" />
+                                    </p:commandButton>
+
+                                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                                        <p:commandButton value="Oui" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                                        <p:commandButton value="Oui" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                                    </p:confirmDialog>
+                                </c:if>
+                            </f:facet>
+                        </p:dataTable>
+                    </h:form>
+                </p:dialog>
+            </ui:define>
+        </ui:composition>
+
+    </h:body>
+</html>
+

@@ -1,0 +1,100 @@
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    <p:dialog appendTo="@(body)" header="création de type de sortie" widgetVar="typesortienewDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+        <h:form>
+            <p:growl><p:autoUpdate/></p:growl>
+            <p:panelGrid columns="2">
+                <p:outputLabel value="id type de sortie:" for="idtypesortie" />
+                <p:inputText id="idtypesortie" value="#{sortieBean.type.idtypesortie}" title="idtypesortie" />
+                <p:outputLabel value="libelle type de sortie:" for="idlibellesortie" />
+                <p:inputText id="idlibellesortie" value="#{sortieBean.type.libelletypesortie}" title="idlibellesortie" />
+                <f:facet name="footer">
+                    <p:commandButton value="save" action="#{sortieBean.createType()}" update="formtype"/>
+                </f:facet>
+            </p:panelGrid>
+        </h:form>
+    </p:dialog>
+    <p:dialog appendTo="@(body)" header="Liste de type de sorties" widgetVar="typesortieDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+
+              <h:form id="formtype">
+            <p:growl><p:autoUpdate/></p:growl>
+            <p:dataTable value="#{sortieBean.listetype}" id="typeTable" var="item" rows="10" paginator="true"
+                         paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                         rowsPerPageTemplate="5,10,15" widgetVar="typeTab" editable="true" style="margin-bottom:20px"
+                         emptyMessage="No type de sortie found with given criteria">
+                <p:ajax event="rowEdit" listener="#{sortieBean.updateType}"/>
+                <p:ajax event="rowEditCancel" listener="#{sortieBean.cancelledType()}" />
+
+                <f:facet name="header">
+                    <p:commandButton id="toggler" type="button" value="Columns" style="float:right" icon="ui-icon-calculator" />
+                    <p:columnToggler datasource="typeTable" trigger="toggler" />
+                </f:facet>
+                <p:column sortBy="#{item.idtypesortie}" filterBy="#{item.idtypesortie}">
+                    <f:facet name="header">
+                        <h:outputText value="Id type de sortie"/>
+                    </f:facet>
+                    <h:outputText value="#{item.idtypesortie}"/>
+                </p:column>
+                <p:column sortBy="#{item.libelletypesortie}" filterBy="#{item.libelletypesortie}">
+                    <f:facet name="header">
+                        <h:outputText value="libelle type de sortie"/>
+                    </f:facet>
+                    <p:cellEditor>
+                        <f:facet name="output"><h:outputText value="#{item.libelletypesortie}" /></f:facet>
+                        <f:facet name="input"><p:inputText value="#{item.libelletypesortie}"/></f:facet>
+                    </p:cellEditor>
+                </p:column>
+                <p:column style="width:32px">
+                    <p:rowEditor />
+                </p:column>
+                <p:column style="width:32px;text-align: center">
+                    <p:commandButton update=":typeDetail"  oncomplete="PF('typeDialog').show()" icon="ui-icon-search" title="View">
+                        <f:setPropertyActionListener value="#{item}" target="#{sortieBean.selectedType}" />
+                    </p:commandButton>
+                </p:column>
+                <p:column style="width:32px;text-align: center">
+                    <p:commandButton actionListener="#{sortieBean.deleteType(item)}" icon="ui-icon-close" update=":formtype">
+                        <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert" />
+                    </p:commandButton>
+
+                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                        <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                        <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                    </p:confirmDialog>
+                </p:column>
+                <f:facet name="footer">
+                    <p:commandButton value="nouveau" oncomplete="PF('typesortienewDialog').show()"/>
+               </f:facet>
+            </p:dataTable>
+        </h:form>
+    </p:dialog>
+    <p:dialog appendTo="@(body)" header="type de sortie Info" widgetVar="typeDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+        <h:form id="typeDetail">
+            <p:outputPanel  style="text-align:center;">
+                <p:panelGrid  columns="2" rendered="#{not empty sortieBean.selectedType}" columnClasses="label,value">
+
+                    <h:outputText value="id type de sortie:" />
+                    <h:outputText value="#{sortieBean.selectedType.idtypesortie}" />
+
+                    <h:outputText value="libelle type de sortie" />
+                    <h:outputText value="#{sortieBean.selectedType.libelletypesortie}" />
+
+                    <h:outputText value="cree le" />
+                    <h:outputText value="#{sortieBean.selectedType.creele}"/>
+
+                    <h:outputText value="cree par" />
+                    <h:outputText value="#{sortieBean.selectedType.creepar}"/>
+
+                    <h:outputText value="modifier le" />
+                    <h:outputText value="#{sortieBean.selectedType.modifiele}"/>
+                    <h:outputText value="modifie par" />
+                    <h:outputText value="#{sortieBean.selectedType.modifiepar}"/>
+                </p:panelGrid>
+            </p:outputPanel>
+        </h:form>
+    </p:dialog>
+</ui:composition>

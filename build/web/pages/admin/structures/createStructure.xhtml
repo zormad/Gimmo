@@ -1,0 +1,203 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+    <h:body>
+        <ui:composition template="../template.xhtml">
+            <ui:define name="content">
+                <ui:include src="../services/uilisteservicesstructure.xhtml"/>
+                <h:form>
+                    <p:menubar>
+                        <p:menuitem value="type de structure" oncomplete="PF('typestructureDialog').show()"/>
+                        <p:menuitem value="type de structure" oncomplete="PF('typestructureDialog').show()"/>
+                        <p:menuitem value="type de structure" oncomplete="PF('typestructureDialog').show()"/>
+                    </p:menubar>
+                </h:form>
+                <ui:include src="uitypestructure.xhtml"/>
+                <p:dialog appendTo="@(body)" header="création de structure" widgetVar="structurenewDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                    <h:form>
+                        <p:growl><p:autoUpdate/></p:growl>
+                        <p:panelGrid columns="2">
+                            <p:outputLabel value="Code structure:" for="codestructure" />
+                            <p:inputText id="codestructure" value="#{structureBean.structure.codestructure}" title="Codestructure" required="true" requiredMessage="The Codestructure field is required."/>
+                            <p:outputLabel value="Libelle structure:" for="libellestructure" />
+                            <p:inputText id="libellestructure" value="#{structureBean.structure.libellestructure}" title="Libellestructure" />
+                            <p:outputLabel value="responsable:" for="idagent" />
+                            <p:selectOneMenu id="idagent" value="#{structureBean.agent.idagent}" required="true" requiredMessage="The Idagent field is required.">
+                                <!-- TODO: update below reference to list of available items-->
+                                <f:selectItems value="#{agentBean.liste}" var="agent" itemLabel="#{agent.nom}" itemValue="#{agent.idagent}"/>
+                            </p:selectOneMenu>
+                            <p:outputLabel value="type structure:" for="idtypestruct" />
+                            <p:selectOneMenu id="idtypestruct" value="#{structureBean.ts.idtypestruct}" required="true" requiredMessage="The Idtypestruct field is required.">
+                                <!-- TODO: update below reference to list of available items-->
+                                <f:selectItems value="#{structureBean.listeTypestructures}" var="type" itemLabel="#{type.libelletypestruct}" itemValue="#{type.idtypestruct}"/>
+                            </p:selectOneMenu>
+                            <f:facet name="footer">
+                                <p:commandButton update=":form" value="save" action="#{structureBean.createStructure()}"/>
+                            </f:facet>
+                        </p:panelGrid>
+                    </h:form>
+                </p:dialog>
+                <h:form id="form"> 
+                    <p:growl><p:autoUpdate/></p:growl>
+                    <p:dataTable value="#{structureBean.liste}" var="item" id="structureTable" rows="10" paginator="true"
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rowsPerPageTemplate="5,10,15" widgetVar="structureTab" editable="true" style="margin-bottom:20px"
+                                 emptyMessage="No structure found with given criteria" scrollable="true" selectionMode="single" selection="#{structureBean.selectedStructure2}" rowKey="#{item.codestructure}">
+                        <p:ajax event="rowEdit" listener="#{structureBean.update}" />
+                        <p:ajax event="rowEditCancel" listener="#{structureBean.cancelled()}" />
+                        <p:ajax event="rowSelect"  update="bb"/>
+                        <p:ajax event="rowUnselect" update="bb"/>
+                        <f:facet name="header">
+                            Liste de structures
+
+                            <p:commandButton id="toggler" type="button" value="Columns" style="float:right" icon="ui-icon-calculator" />
+                            <p:columnToggler datasource="structureTable" trigger="toggler" />
+                        </f:facet>
+                        <p:column sortBy="#{item.codestructure}" filterBy="#{item.codestructure}">
+                            <f:facet name="header">
+                                <h:outputText value="Code structure"/>
+                            </f:facet>
+                            <h:outputText value="#{item.codestructure}"/>
+                        </p:column>
+                        <p:column filterBy="#{item.libellestructure}" sortBy="#{item.libellestructure}">
+                            <f:facet name="header">
+                                <h:outputText value="Libelle structure"/>
+                            </f:facet>
+                            <p:cellEditor>
+                                <f:facet name="output"><h:outputText value="#{item.libellestructure}" /></f:facet>
+                                <f:facet name="input"><p:inputText value="#{item.libellestructure}" style="width:100%"/></f:facet>
+                            </p:cellEditor>
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="responsable "/>
+                            </f:facet>
+                            <p:cellEditor>
+                                <f:facet name="output"><h:outputText value="#{item.idagent.nom} #{item.idagent.prenom}" /></f:facet>
+                                <f:facet name="input">
+                                    <h:selectOneMenu value="#{item.idagent.idagent}">
+                                        <f:selectItems value="#{agentBean.liste}" var="agent" itemLabel="#{agent.nom} #{agent.prenom}" itemValue="#{agent.idagent}"/>
+                                    </h:selectOneMenu>
+                                </f:facet>
+                            </p:cellEditor>
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="type stucture"/>
+                            </f:facet>
+                            <p:cellEditor>
+                                <f:facet name="output"><h:outputText value="#{item.idtypestruct.libelletypestruct}" /></f:facet>
+                                <f:facet name="input">
+                                    <h:selectOneMenu value="#{item.idtypestruct.idtypestruct}">
+                                        <f:selectItems value="#{structureBean.listeTypestructures}" var="type" itemLabel="#{type.libelletypestruct}" itemValue="#{type.idtypestruct}"/>
+                                    </h:selectOneMenu>
+                                </f:facet>
+                            </p:cellEditor>
+                        </p:column>
+
+                        <p:column style="width:32px">
+                            <p:rowEditor />
+                        </p:column>
+                        <p:column style="width:32px;text-align: center">
+                            <p:commandButton update=":form"  oncomplete="PF('structureDialog').show()" icon="ui-icon-search" title="View">
+                                <f:setPropertyActionListener value="#{item}" target="#{structureBean.selectedStructure}" />
+                            </p:commandButton>
+                        </p:column>
+                        <p:column style="width:32px;text-align: center">
+                            <p:commandButton action="#{structureBean.delete(item)}" icon="ui-icon-close" update=":form">
+                                <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert" />
+                            </p:commandButton>
+
+                            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                                <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                                <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                            </p:confirmDialog>
+                        </p:column>
+                        <f:facet name="footer">
+                            <h:form id="bb">
+                                <p:commandButton value="nouveau" oncomplete="PF('structurenewDialog').show()"/>
+                                <c:if test="#{structureBean.selectedStructure2!=null}">
+                                    <c:if test="#{structureBean.selectedStructure2.magasin!=null}"> <p:commandButton id="b1" update="@widgetVar(magasinInfoDialog)" value="magasin" oncomplete="PF('magasinInfoDialog').show()" disabled="#{ empty structureBean.selectedStructure2}"/></c:if>
+                                    <c:if test="#{structureBean.selectedStructure2.magasin==null}">
+                                        <p:commandButton id="b2" update="@widgetVar(nouveaumagasinDialog)" value="nouveau magasin" oncomplete="PF('nouveaumagasinDialog').show()" disabled="#{ empty structureBean.selectedStructure2}">
+                                            <f:ajax listener="#{structureBean.prepareMagasin()}" />
+                                        </p:commandButton>
+                                    </c:if>
+                                </c:if>
+                                <p:commandButton id="b3" update="@widgetVar(listeservicestructureDialog)" value="services" oncomplete="PF('listeservicestructureDialog').show()" disabled="#{ empty structureBean.selectedStructure2}"/>
+                            </h:form>
+                        </f:facet> 
+                    </p:dataTable> 
+                    <p:dialog appendTo="@(body)" header="structure Info" widgetVar="structureDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                        <p:outputPanel id="structureDetail" style="text-align:center;">
+                            <p:panelGrid  columns="2" rendered="#{not empty structureBean.selectedStructure}" columnClasses="label,value">
+
+                                <h:outputText value="codestructure" />
+                                <h:outputText value="#{structureBean.selectedStructure.codestructure}" />
+
+                                <h:outputText value="libelle structure" />
+                                <h:outputText value="#{structureBean.selectedStructure.libellestructure}"/>
+
+                                <h:outputText value="type de structure" />
+                                <h:outputText value="#{structureBean.selectedStructure.idtypestruct.libelletypestruct}" />
+
+                                <h:outputText value="responsable" />
+                                <h:outputText value="#{structureBean.selectedStructure.idagent.nom}"/>
+
+                                <h:outputText value="cree Le" />
+                                <h:outputText value="#{structureBean.selectedStructure.creele}"/>
+
+                                <h:outputText value="cree Par" />
+                                <h:outputText value="#{structureBean.selectedStructure.creepar}"/>
+
+                                <h:outputText value="modifier Le" />
+                                <h:outputText value="#{structureBean.selectedStructure.modifiele}"/>
+
+                                <h:outputText value="modifie Par" />
+                                <h:outputText value="#{structureBean.selectedStructure.modifiepar}"/>
+                            </p:panelGrid>
+                        </p:outputPanel>
+                    </p:dialog>
+                </h:form>
+                <p:dialog appendTo="@(body)" header="magasin de la structure #{structureBean.selectedStructure2.libellestructure}" widgetVar="magasinInfoDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                    <p:outputPanel id="magasinDetail" style="text-align:center;">
+                        <p:panelGrid  columns="2" rendered="#{not empty structureBean.selectedStructure2.magasin}" columnClasses="label,value">
+                            <h:outputText value="code du magasin" />
+                            <h:outputText value="#{structureBean.selectedStructure2.magasin.idcodemagasin}" />
+
+                            <h:outputText value="libelle du magasin" />
+                            <h:outputText value="#{structureBean.selectedStructure2.magasin.nommagasin}"/>
+
+                            <h:outputText value="structure" />
+                            <h:outputText value="#{structureBean.selectedStructure2.magasin.codestructure.libellestructure}" />
+
+                            <h:outputText value="type du magasin" />
+                            <h:outputText value="#{structureBean.selectedStructure2.magasin.idtypemag.libelletypemag}"/>
+
+                        </p:panelGrid>
+                    </p:outputPanel>
+                </p:dialog>
+                <p:dialog appendTo="@(body)" header="Nouveau magasin de la structure #{structureBean.selectedStructure2.libellestructure}" widgetVar="nouveaumagasinDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                    <h:form>
+                        <p:panelGrid columns="2">
+                            <p:outputLabel value="Idcodemagasin:" for="idcodemagasin" />
+                            <p:inputText id="idcodemagasin" value="#{structureBean.magasin.idcodemagasin}" title="Idcodemagasin" required="true" requiredMessage="The Idcodemagasin field is required."/>
+                            <p:outputLabel value="Nommagasin:" for="nommagasin" />
+                            <p:inputText id="nommagasin" value="#{structureBean.magasin.nommagasin}" title="Nommagasin" />
+                            <f:facet name="footer">
+                                <p:commandButton value="Ajouter" action="#{structureBean.createMagasin()}" ajax="false"/>
+                            </f:facet> 
+                        </p:panelGrid>
+                    </h:form>
+                </p:dialog>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
+

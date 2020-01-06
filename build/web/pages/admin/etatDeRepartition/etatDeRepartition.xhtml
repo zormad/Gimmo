@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+    <h:head>
+        <title>Facelet Title</title>
+    </h:head>
+    <h:body>
+        <ui:composition template="../template.xhtml">
+            <ui:define name="content">
+                <h:form id="etatDeRepartition">
+                    <p:panelGrid columns="2">
+                        
+                            <p:outputLabel value="Structure" for="structure"/>
+                            <p:selectOneMenu  id="structure" value="#{etatDeRepartition.structure1.codestructure}">
+                                <f:ajax listener="#{etatDeRepartition.changeValues()}" render="magasin"/>
+                                <p:ajax update=":etatDeRepartition"/>
+                                <f:selectItem itemLabel="Select One" itemValue=""/>
+                                <f:selectItems value="#{etatDeRepartition.listeStructure}" var="st" itemLabel="#{st.libellestructure}" itemValue="#{st.codestructure}"/>
+                            </p:selectOneMenu>
+                            <p:outputLabel value="Magasin" for="magasin"/>
+                            <p:outputLabel value="#{etatDeRepartition.magasin.nommagasin}" id="magasin"/>
+                        <f:facet name="footer">
+                            <p:commandButton value="Etat de répartition de toutes les structures" action="#{etatDeRepartition.printPdfEtatDeRepartition()}" ajax="false"/>
+                            <c:if test="#{etatDeRepartition.magasin.idcodemagasin!=null}">
+                                <p:commandButton value="Etat de répartition du #{etatDeRepartition.magasin.idcodemagasin}" action="#{etatDeRepartition.printPdfEtatDeRepartitionParService()}" ajax="false"/>
+                            </c:if>
+                        </f:facet>
+                    </p:panelGrid>
+                </h:form>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>

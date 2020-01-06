@@ -1,0 +1,288 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+    <h:head>
+        <title>Facelet Title</title>
+    </h:head>
+    <h:body>
+        <ui:composition template="../template.xhtml">
+            <ui:define name="content">
+                <h:form>
+                    <p:commandButton value="prestataire"  oncomplete="PF('prestataireDialog').show()"/>
+                    <p:commandButton update=":wreparationListe" value="Reparation et Mainténance"  oncomplete="PF('reparationListeDialog').show()">
+                        <f:ajax listener="#{sortieBean.resetSelectedSortie()}"/>
+                    </p:commandButton>
+                    <p:commandButton update=":wretourmissionListe" value="Retour de mission"  oncomplete="PF('retourmissionListeDialog').show()">
+                          <f:ajax listener="#{sortieBean.resetSelectedSortie()}"/>
+                    </p:commandButton>
+                </h:form>
+                <ui:include src="prestataire.xhtml"/>
+                <ui:include src="retourmission.xhtml"/>
+                <ui:include src="reparation.xhtml"/>
+                <ui:include src="uitypeintervention.xhtml"/>
+
+                <p:dialog appendTo="@(body)" header="nouvelle sortie " widgetVar="sortienewDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                    <h:form id="sortienew"> 
+                        <p:growl><p:autoUpdate/></p:growl>
+                        <p:panelGrid columns="2">
+                            <p:outputLabel value="Libellesortie:" for="libellesortie" />
+                            <p:inputText id="libellesortie" value="#{sortieBean.sortie.libellesortie}" title="Libellesortie" />
+                            <p:outputLabel value="Descriptionsortie:" for="descriptionsortie" />
+                            <p:inputText id="descriptionsortie" value="#{sortieBean.sortie.descriptionsortie}" title="Descriptionsortie" />
+                            <c:if test="#{sortieBean.type.idtypesortie!='rebus'}">
+                                <p:outputLabel value="Dateprevuretour:" for="dateprevuretour" />
+                                <p:inputText id="dateprevuretour" value="#{sortieBean.sortie.dateprevuretour}" title="Dateprevuretour" >
+                                    <f:convertDateTime pattern="MM/dd/yyyy HH:mm:ss" />
+                                </p:inputText>
+                            </c:if>
+                            <c:if test="#{sortieBean.type.idtypesortie=='mssion'}">
+                                <p:outputLabel value="agent" for="idagent" />
+                                <p:selectOneMenu id="idagent" value="#{sortieBean.agent.idagent}" >
+                                    <!-- TODO: update below reference to list of available items-->
+                                    <f:selectItems value="#{agentBean.liste}" var="agent" itemLabel="#{agent.nom} #{agent.prenom}" itemValue="#{agent.idagent}"/>
+                                </p:selectOneMenu>
+                            </c:if>
+                            <c:if test="#{sortieBean.type.idtypesortie=='repare'}">
+                                <p:outputLabel value="prestataire:" for="idprestataire" />
+                                <p:selectOneMenu id="idprestataire" value="#{sortieBean.prestataire.idprestataire}" >
+                                    <!-- TODO: update below reference to list of available items-->
+                                    <f:selectItems value="#{prestataireBean.liste}" var="prestataire" itemLabel="#{prestataire.libelleprestataire}" itemValue="#{prestataire.idprestataire}"/>
+                                </p:selectOneMenu>
+                            </c:if>
+                            <f:facet name="footer">
+                                <p:commandButton value="save" action="#{sortieBean.create()}" update="@widgetVar(sortieTab)"/>
+                            </f:facet>
+                        </p:panelGrid>
+                    </h:form>
+                </p:dialog>
+                <h:form id="formSortie">
+                    <p:outputLabel value="type de sortie:" for="idtypesortie" />
+                    <p:selectOneRadio  id="idtypesortie" value="#{sortieBean.type.idtypesortie}" required="true" requiredMessage="The Idtypesortie field is required.">
+                        <f:ajax  listener="#{sortieBean.afterchoose()}" render="@form"/>
+                        <p:ajax update=":sortienew"/>
+                        <!-- TODO: update below reference to list of available items-->
+                        <f:selectItems value="#{sortieBean.listetype}" var="type" itemLabel="#{type.libelletypesortie}" itemValue="#{type.idtypesortie}"/>
+                    </p:selectOneRadio>
+                    <c:if test="#{sortieBean.type.idtypesortie!=null}">
+                        <p:dataTable value="#{sortieBean.liste}" id="sortieTable" var="item"  widgetVar="sortieTab" filteredValue="#{sortieBean.filteredsorties}"
+                                     selectionMode="single" selection="#{sortieBean.selectedSortie}" rowKey="#{item.idsortie}" rows="10" paginator="true"
+                                     paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                     rowsPerPageTemplate="5,10,15" style="margin-bottom:20px"
+                                     emptyMessage="No sortie found with given criteria">
+                            <p:ajax event="rowSelect" update=":wequipementsortis,:formSortie" listener="#{sortieBean.setCollection()}"/>
+                            <p:ajax event="rowUnselect" update=":wequipementsortis,:formSortie" />
+                            <f:facet name="header">
+                                Liste de soties
+                                <p:outputPanel>
+                                    <h:outputText value="Search all fields:" />
+                                    <p:inputText id="globalFilter" onkeyup="PF('sortieTab').filter()" style="width:300px" placeholder="Enter keyword"/>
+                                </p:outputPanel>
+                                <p:commandButton id="toggler" type="button" value="Columns" style="float:right" icon="ui-icon-calculator" />
+                                <p:columnToggler datasource="sortieTable" trigger="toggler" />
+                            </f:facet>
+                            <p:column sortBy="#{item.idsortie}">
+                                <f:facet name="header">
+                                    <h:outputText value="Id de la sortie"/>
+                                </f:facet>
+                                <h:outputText value="#{item.idsortie}"/>
+                            </p:column>
+                            <p:column sortBy="#{item.libellesortie}">
+                                <f:facet name="header">
+                                    <h:outputText value="Libelle de la sortie"/>
+                                </f:facet>
+                                <h:outputText value="#{item.libellesortie}"/>
+                            </p:column>
+                            <p:column >
+                                <f:facet name="header">
+                                    <h:outputText value="Description de la  sortie"/>
+                                </f:facet>
+                                <h:outputText value="#{item.descriptionsortie}"/>
+                            </p:column>
+                            <p:column>
+                                <f:facet name="filter">
+                                    <p:calendar pattern="MM/dd/yyyy HH:mm:ss" onchange=""/>
+                                </f:facet>
+                                <f:facet name="header">
+                                    <h:outputText value="Date sortie"/>
+                                </f:facet>
+                                <h:outputText value="#{item.datesortie}">
+                                    <f:convertDateTime pattern="MM/dd/yyyy HH:mm:ss" />
+                                </h:outputText>
+                            </p:column>
+                            <c:if test="#{sortieBean.type.idtypesortie!='rebus'}">
+                                <p:column>
+                                    <f:facet name="header">
+                                        <h:outputText value="Date prevue de retour"/>
+                                    </f:facet>
+                                    <f:facet name="filter">
+                                        <p:calendar pattern="MM/dd/yyyy HH:mm:ss" onchange=""></p:calendar>
+                                    </f:facet>
+                                    <h:outputText value="#{item.dateprevuretour}">
+                                        <f:convertDateTime pattern="MM/dd/yyyy HH:mm:ss" />
+                                    </h:outputText>
+                                </p:column>
+                            </c:if>
+                            <c:if test="#{sortieBean.type.idtypesortie=='repare'}">
+                                <p:column>
+                                    <f:facet name="header">
+                                        <h:outputText value="prestataire"/>
+                                    </f:facet>
+                                    <h:outputText value="#{item.idprestataire.libelleprestataire}"/>
+                                </p:column>
+                            </c:if>
+                            <c:if test="#{sortieBean.type.idtypesortie=='mssion'}">
+                                <p:column>
+                                    <f:facet name="header">
+                                        <h:outputText value="agent"/>
+                                    </f:facet>
+                                    <h:outputText value="#{item.idagent.nom} #{item.idagent.prenom}"/>
+                                </p:column>
+                            </c:if>
+                            <p:column style="width:32px;text-align: center">
+                                <p:commandButton update=":formSortie"  oncomplete="PF('sortieDialog').show()" icon="ui-icon-search" title="View">
+                                    <f:setPropertyActionListener value="#{item}" target="#{sortieBean.selectedSortie}" />
+                                </p:commandButton>
+                            </p:column>
+                            <p:column style="width:32px;text-align: center">
+                                <p:commandButton actionListener="#{sortieBean.delete(item)}" icon="ui-icon-close" update=":formSortie">
+                                    <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert" />
+                                </p:commandButton>
+
+                                <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                                    <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                                    <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                                   </p:confirmDialog>
+                            </p:column>
+                            <f:facet name="footer">
+                                <p:commandButton value="nouveau" oncomplete="PF('sortienewDialog').show()"/>
+                                <c:if test="#{sortieBean.selectedSortie.idtypesortie!=null}">
+                                    <p:commandButton  update=":wequipementsortis" value="Equipements sortis" oncomplete="PF('equipementsortisDialog').show()"/>
+                                    <p:commandButton update=":formSortie" value="valider" action="#{sortieBean.updateValider()}" disabled="#{sortieBean.selectedSortie.valider=='true'}"/>
+                                </c:if>  
+                            </f:facet>
+                        </p:dataTable>
+                    </c:if>
+                    <p:contextMenu>
+                        <p:menuitem value="equipements sortis" oncomplete="PF('equipementsortisDialog').show()"/>
+                    </p:contextMenu>
+
+                    <p:dialog header="sortie Info" widgetVar="sortieDialog" modal="false" showEffect="fade" hideEffect="fade" resizable="false">
+                        <p:outputPanel id="sortieDetail" style="text-align:center;">
+                            <p:panelGrid  columns="2" rendered="#{not empty sortieBean.selectedSortie}" columnClasses="label,value">
+
+                                <h:outputText value="id sortie" />
+                                <h:outputText value="#{sortieBean.selectedSortie.idsortie}" />
+
+                                <h:outputText value="libelle sortie" />
+                                <h:outputText value="#{sortieBean.selectedSortie.libellesortie}" />
+
+                                <h:outputText value="description" />
+                                <h:outputText value="#{sortieBean.selectedSortie.descriptionsortie}" />
+
+                                <h:outputText value="type de sortie de sortie" />
+                                <h:outputText value="#{sortieBean.selectedSortie.idtypesortie.libelletypesortie}" />
+
+                                <h:outputText value="date de sortie" />
+                                <h:outputText value="#{sortieBean.selectedSortie.datesortie}" />
+
+                                <h:outputText value="date de retour prévu" />
+                                <h:outputText value="#{sortieBean.selectedSortie.dateprevuretour}" />
+
+
+                                <h:outputText value="prestataire" />
+                                <h:outputText value="#{sortieBean.selectedSortie.idprestataire.libelleprestataire}" />
+
+                                <h:outputText value="agent" />
+                                <h:outputText value="#{sortieBean.selectedSortie.idagent.nom} #{sortieBean.selectedSortie.idagent.prenom}" />
+
+                                <h:outputText value="cree le" />
+                                <h:outputText value="#{sortieBean.selectedSortie.creele}"/>
+
+                                <h:outputText value="cree par" />
+                                <h:outputText value="#{sortieBean.selectedSortie.creepar}"/>
+
+                                <h:outputText value="modifier le" />
+                                <h:outputText value="#{sortieBean.selectedSortie.modifiele}"/>
+                                <h:outputText value="modifie par" />
+                                <h:outputText value="#{sortieBean.selectedSortie.modifiepar}"/>
+                            </p:panelGrid>
+                        </p:outputPanel>
+                    </p:dialog>
+                </h:form>
+
+                <!--liste des equipements sortis -->
+                <p:dialog appendTo="@(body)" widgetVar="equipementsortisDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+
+                    <h:form id="wequipementsortis">
+                        <p:dataTable value="#{sortieBean.listeEquipements}" var="item" 
+                                     rows="10" paginator="true"
+                                     paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                     rowsPerPageTemplate="5,10,15" style="margin-bottom:20px"
+                                     emptyMessage="pas d'équipements pour cette sortie" scrollable="true">
+                            <f:facet name="header">
+                                <h:outputText value="liste des equipements de la sortie #{sortieBean.selectedSortie.idsortie}"/>
+                            </f:facet>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="id de l'équipement"/>
+                                </f:facet>
+                                <h:outputText value="#{item.idequip}"/>
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="désignation de l'équipement"/>
+                                </f:facet>
+                                <h:outputText value="#{item.codearticle.designation}"/>
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="position"/>
+                                </f:facet>
+                                <h:outputText value="#{item.magasinActuel.nommagasin}"/>
+                                <h:outputText value="#{item.posteActuel.nomposte}"/>
+                            </p:column>
+                            <f:facet name="footer">
+                                <c:if test="#{sortieBean.selectedSortie.valider=='false'}">
+                                    <p:commandButton update=":wnouveauequipementsortis" value="nouveau" oncomplete="PF('nouveauequipementsortisDialog').show()"/>
+                                </c:if>
+                            </f:facet>
+                        </p:dataTable>
+                    </h:form>
+                </p:dialog> 
+                <!--nouvel equipements sortis -->
+                <p:dialog appendTo="@(body)" header="nouvel equipements de sortie" widgetVar="nouveauequipementsortisDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+
+                    <h:form id="wnouveauequipementsortis">
+                        <p:growl><p:autoUpdate/></p:growl>
+                        <p:pickList id="sortisEquipementPickList" value="#{sortieBean.equipements}" var="equipement" effect="bounce"
+                                    itemValue="#{equipement.idequip}" itemLabel="#{equipement.idequip} #{equipement.codearticle.designation}"  showCheckbox="true" responsive="true"
+                                    showSourceFilter="true" showTargetFilter="true" filterMatchMode="contains" converter="equipementConverter" >
+
+                            <f:facet name="sourceCaption">id      désignation</f:facet>
+                            <f:facet name="targetCaption">id      désignation</f:facet>
+
+                        </p:pickList>
+                        <p:commandButton update=":wequipementsortis,:wnouveauequipementsortis" value="ajouter" action="#{sortieBean.addEquip()}" />
+                        <!--  
+                       <p:panelGrid columns="2">
+                           <p:outputLabel value="Equipement:" for="equipement" />
+                           <p:selectOneMenu id="equipement" value="{sortieBean.equipement.idequip}" required="true" requiredMessage="The Equipement field is required.">
+                                <f:selectItems value="{sortieBean.listEquipall}" var="e" itemLabel="{e.idequip} {e.codearticle.designation}" itemValue="{e.idequip}"/>
+                           </p:selectOneMenu>
+                           <f:facet name="footer">
+                               <p:commandButton update=":wequipementsortis,:wnouveauequipementsortis" value="ajouter" action="{sortieBean.addEquip()}" />
+                           </f:facet>
+                       </p:panelGrid>
+                        -->
+                    </h:form>
+                </p:dialog> 
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
+

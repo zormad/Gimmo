@@ -1,0 +1,138 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    <h:head>
+        <title>create user</title>
+    </h:head>
+    <h:body>
+        <ui:composition  template="../template.xhtml" >
+            <ui:define  name="content">
+                <p:dialog appendTo="@(body)" header="création d'utilisateur" widgetVar="usernewDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                    <h:form>
+                        <p:growl><p:autoUpdate/></p:growl>
+                        <p:panelGrid columns="2"><p:outputLabel value="Loginuser:" for="loginuser" />
+                            <p:inputText id="loginuser" value="#{utilisateurBean.utilisateur.loginuser}" title="Loginuser" />
+                            <p:outputLabel value="Loginpasswd:" for="loginpasswd" />
+                            <p:password id="loginpasswd" match="cloginpasswd" feedback="true" value="#{utilisateurBean.utilisateur.loginpasswd}" title="Loginpasswd" />
+                            <p:outputLabel value="confirmez le mot de passse" for="cloginpasswd" />
+                            <p:password id="cloginpasswd"  title="Loginpasswd" />
+                            <p:outputLabel value="ProIdprofil:" for="proIdprofil" />
+                            <p:selectOneMenu id="proIdprofil" value="#{utilisateurBean.profile.idprofil}" required="true" requiredMessage="The Idprofile field is required.">
+                                <!-- TODO: update below reference to list of available items-->
+                                <f:selectItems value="#{profileController.liste}" var="profile" itemLabel="#{profile.libelleprofil}" itemValue="#{profile.idprofil}"/>
+                            </p:selectOneMenu>
+                            <f:facet name="footer">
+                                <p:commandButton value="save" action="#{utilisateurBean.create()}" update=":form" icon="ui-icon-star"/>
+                            </f:facet>
+                        </p:panelGrid>
+                    </h:form>
+                </p:dialog>
+                <h:form id="form">
+                    <p:dataTable value="#{utilisateurBean.liste}" var="item" id="userdata" 
+                                 rows="10" paginator="true"
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rowsPerPageTemplate="5,10,15" widgetVar="userTab" editable="true" style="margin-bottom:20px"
+                                 emptyMessage="No user found with given criteria" scrollable="true">
+                        <p:ajax event="rowEdit" listener="#{utilisateurBean.update}"/>
+                        <p:ajax event="rowEditCancel" listener="#{utilisateurBean.cancelled()}" />
+                        <f:facet name="header">
+                            Liste d'utilisateurs
+
+                            <p:commandButton id="toggler" type="button" value="Columns" style="float:right" icon="ui-icon-calculator" />
+                            <p:columnToggler datasource="userdata" trigger="toggler" />
+                        </f:facet>
+                        <p:column sortBy="#{item.iduser}" filterBy="#{item.iduser}">
+                            <f:facet name="header">
+                                <h:outputText value="Iduser"/>
+                            </f:facet>
+                            <h:outputText value="#{item.iduser}"/>
+                        </p:column>
+                        <p:column sortBy="#{item.loginuser}" filterBy="#{item.loginuser}">
+                            <f:facet name="header">
+                                <h:outputText value="Loginuser"/>
+                            </f:facet>
+                            <h:outputText value="#{item.loginuser}"/>
+                        </p:column>
+                        <p:column sortBy="#{item.idprofil.idprofil}">
+                            <f:facet name="header">
+                                <h:outputText value="ProIdprofile"/>
+                            </f:facet>
+                            <p:cellEditor>
+                                <f:facet name="output"><h:outputText value="#{item.idprofil.libelleprofil}" /></f:facet>
+                                <f:facet name="input">
+                                    <h:selectOneMenu value="#{item.idprofil.idprofil}">
+                                        <f:selectItems value="#{profileController.liste}" var="profile" itemLabel="#{profile.libelleprofil}" itemValue="#{profile.idprofil}"/>
+                                    </h:selectOneMenu>
+                                </f:facet>
+                            </p:cellEditor>
+                        </p:column >
+                        <p:column headerText="derniere connexion">
+                            <h:outputText value="#{item.derniereconnexion}"/>
+                        </p:column>
+                        <p:column style="width:32px">
+                            <p:rowEditor />
+                        </p:column>
+                        <p:column style="width:32px;text-align: center">
+                            <p:commandButton update=":form:userDetail"  oncomplete="PF('userDialog').show()" icon="ui-icon-search" title="View">
+                                <f:setPropertyActionListener value="#{item}" target="#{utilisateurBean.utilisateurSelected}" />
+                            </p:commandButton>
+                        </p:column>
+                        <p:column style="width:32px;text-align: center">
+                            <p:commandButton actionListener="#{utilisateurBean.delete(item)}" icon="ui-icon-close" update=":form:userdata">
+                                <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert" />
+                            </p:commandButton>
+
+                            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                                <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                                <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                            </p:confirmDialog>
+                        </p:column>
+                        <f:facet name="footer">
+                            <p:commandButton value="nouveau" oncomplete="PF('usernewDialog').show()"/>
+                            <p:commandButton value="affecter "  oncomplete="PF('agentnewDialog').show()" />
+                        </f:facet>
+                    </p:dataTable>
+
+                    <p:dialog header="user Info" widgetVar="userDialog" modal="false" showEffect="fade" hideEffect="fade" resizable="false">
+                        <p:outputPanel id="userDetail" style="text-align:center;">
+                            <p:panelGrid  columns="2" rendered="#{not empty utilisateurBean.utilisateurSelected}" columnClasses="label,value">
+
+                                <h:outputText value="iduser" />
+                                <h:outputText value="#{utilisateurBean.utilisateurSelected.iduser}" />
+
+                                <h:outputText value="loginuser" />
+                                <h:outputText value="#{utilisateurBean.utilisateurSelected.loginuser}"/>
+
+                                <h:outputText value="idprofil" />
+                                <h:outputText value="#{utilisateurBean.utilisateurSelected.idprofil.libelleprofil}" />
+
+                                <h:outputText value="derniereconnexion" />
+                                <h:outputText value="#{utilisateurBean.utilisateurSelected.derniereconnexion}" />
+
+                                <h:outputText value="connecte" />
+                                <h:outputText value="#{utilisateurBean.utilisateurSelected.connecte}"/>
+
+                                <h:outputText value="cree Le" />
+                                <h:outputText value="#{utilisateurBean.utilisateurSelected.creele}"/>
+
+                                <h:outputText value="cree Par" />
+                                <h:outputText value="#{utilisateurBean.utilisateurSelected.creepar}"/>
+
+                                <h:outputText value="modifier Le" />
+                                <h:outputText value="#{utilisateurBean.utilisateurSelected.modifiele}"/>
+
+                                <h:outputText value="modifie Par" />
+                                <h:outputText value="#{utilisateurBean.utilisateurSelected.modifiepar}"/>
+                            </p:panelGrid>
+                        </p:outputPanel>
+                    </p:dialog>
+                </h:form>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
+

@@ -1,0 +1,122 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>Facelet Title</title>
+    </h:head>
+    <h:body><ui:composition template="../template.xhtml">
+            <ui:define name="content">
+                <p:dialog appendTo="@(body)" header="création de role" widgetVar="rolenewDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                    <h:form>
+                        <p:growl><p:autoUpdate/></p:growl>
+                        <p:panelGrid columns="2">
+                            <p:outputLabel value="Id role:" for="idrole" />
+                            <p:inputText id="idrole" value="#{roleBean.role.idrole}" title="Idrole" required="true" requiredMessage="The Idrole field is required."/>
+                            <p:outputLabel value="Libelle role:" for="libellerole" />
+                            <p:inputText id="libellerole" value="#{roleBean.role.libellerole}" title="Libellerole" />
+                            <p:outputLabel value="Description:" for="description" />
+                            <p:inputText id="description" value="#{roleBean.role.description}" title="Description" />
+                            <f:facet name="footer">
+                                <p:commandButton value="create" action="#{roleBean.create()}" update=":formRole"/>
+                            </f:facet>   
+                        </p:panelGrid>
+                    </h:form>
+                </p:dialog>
+                <h:form id="formRole">
+                    <p:growl ><p:autoUpdate/></p:growl>
+                    <p:dataTable value="#{roleBean.liste}" var="item" id="roleTable" rows="10" paginator="true"
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rowsPerPageTemplate="5,10,15" widgetVar="roleTab" editable="true" style="margin-bottom:20px"
+                                 emptyMessage="No role found with given criteria">
+                        <p:ajax event="rowEdit" listener="#{roleBean.update}"/>
+                        <p:ajax event="rowEditCancel" listener="#{roleBean.cancelled()}" />
+                        <f:facet name="header">
+                            Liste de roles
+
+                            <p:commandButton id="toggler" type="button" value="Columns" style="float:right" icon="ui-icon-calculator" />
+                            <p:columnToggler datasource="roleTable" trigger="toggler" />
+                        </f:facet>
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="Idrole"/>
+                            </f:facet>
+                            <h:outputText value="#{item.idrole}"/>
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="Libellerole"/>
+                            </f:facet>
+                            <p:cellEditor>
+                                <f:facet name="output"><h:outputText value="#{item.libellerole}" /></f:facet>
+                                <f:facet name="input"><p:inputText value="#{item.libellerole}" style="width:100%"/></f:facet>
+                            </p:cellEditor>
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="Description"/>
+                            </f:facet>
+                            <p:cellEditor>
+                                <f:facet name="output"><h:outputText value="#{item.description}" /></f:facet>
+                                <f:facet name="input"><p:inputTextarea value="#{item.description}" style="width:100%"/></f:facet>
+                            </p:cellEditor>
+                        </p:column>
+                        <p:column style="width:32px">
+                            <p:rowEditor />
+                        </p:column>
+                        <p:column style="width:32px;text-align: center">
+                            <p:commandButton update=":formRole"  oncomplete="PF('roleDialog').show()" icon="ui-icon-search" title="View">
+                                <f:setPropertyActionListener value="#{item}" target="#{roleBean.selectedrole}" />
+                            </p:commandButton>
+                        </p:column>
+                        <p:column style="width:32px;text-align: center">
+                            <p:commandButton actionListener="#{roleBean.delete(item)}" icon="ui-icon-close" update=":formRole">
+                                <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert" />
+                            </p:commandButton>
+
+                            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                                <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                                <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                            </p:confirmDialog>
+                        </p:column>
+                        <f:facet name="footer">
+                            <p:commandButton value="nouveau" oncomplete="PF('rolenewDialog').show()"/>
+                        </f:facet>
+
+                    </p:dataTable>
+                    <p:dialog header="source Info" widgetVar="roleDialog" modal="false" showEffect="fade" hideEffect="fade" resizable="false">
+                        <p:outputPanel id="roleDetail" style="text-align:center;">
+                            <p:panelGrid  columns="2" rendered="#{not empty roleBean.selectedrole}" columnClasses="label,value">
+
+                                <h:outputText value="id role" />
+                                <h:outputText value="#{roleBean.selectedrole.idrole}" />
+
+                                <h:outputText value="libelle role" />
+                                <h:outputText value="#{roleBean.selectedrole.libellerole}" />
+
+                                <h:outputText value="description role" />
+                                <h:outputText value="#{roleBean.selectedrole.description}" />
+
+                                <h:outputText value="cree le" />
+                                <h:outputText value="#{roleBean.selectedrole.creele}"/>
+
+                                <h:outputText value="cree par" />
+                                <h:outputText value="#{roleBean.selectedrole.creepar}"/>
+
+                                <h:outputText value="modifier le" />
+                                <h:outputText value="#{roleBean.selectedrole.modifiele}"/>
+                                <h:outputText value="modifie par" />
+                                <h:outputText value="#{roleBean.selectedrole.modifiepar}"/>
+                            </p:panelGrid>
+                        </p:outputPanel>
+                    </p:dialog>
+
+                </h:form>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
+

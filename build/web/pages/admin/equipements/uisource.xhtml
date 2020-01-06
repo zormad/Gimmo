@@ -1,0 +1,106 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>Facelet Title</title>
+    </h:head>
+    <h:body><ui:composition template="../template.xhtml">
+            <ui:define name="content">
+                <p:dialog appendTo="@(body)" header="création de source" widgetVar="sourcenewDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                    <h:form>
+                        <p:growl><p:autoUpdate/></p:growl>
+                    <p:panelGrid columns="2">
+                        <p:outputLabel value="Nom source:" for="nomsource" />
+                        <p:inputText id="nomsource" value="#{sourcedefinancementBean.source.libellesource}" title="Nomsource" />
+                        <f:facet name="footer">
+                            <p:commandButton value="save" action="#{sourcedefinancementBean.create()}" update="formsource"/>
+                        </f:facet>
+                    </p:panelGrid>
+                </h:form>
+                </p:dialog>
+                <h:form id="formsource">
+                    <p:growl><p:autoUpdate/></p:growl>
+                    <p:dataTable value="#{sourcedefinancementBean.liste}" id="sourceTable" var="item" rows="10" paginator="true"
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rowsPerPageTemplate="5,10,15" widgetVar="sourceTab" editable="true" style="margin-bottom:20px"
+                                 emptyMessage="No source found with given criteria">
+                        <p:ajax event="rowEdit" listener="#{sourcedefinancementBean.update}"/>
+                        <p:ajax event="rowEditCancel" listener="#{sourcedefinancementBean.cancelled()}" />
+
+                         <f:facet name="header">
+                            Liste  de sources de financement
+
+                            <p:commandButton id="toggler" type="button" value="Columns" style="float:right" icon="ui-icon-calculator" />
+                            <p:columnToggler datasource="sourceTable" trigger="toggler" />
+                        </f:facet>
+                        <p:column sortBy="#{item.idsource}" filterBy="#{item.idsource}">
+                            <f:facet name="header">
+                                <h:outputText value="Id source"/>
+                            </f:facet>
+                            <h:outputText value="#{item.idsource}"/>
+                        </p:column>
+                        <p:column sortBy="#{item.libellesource}" filterBy="#{item.libellesource}">
+                            <f:facet name="header">
+                                <h:outputText value="libelle source"/>
+                            </f:facet>
+                            <p:cellEditor>
+                                <f:facet name="output"><h:outputText value="#{item.libellesource}" /></f:facet>
+                                <f:facet name="input"><p:inputText value="#{item.libellesource}" style="width:100%"/></f:facet>
+                            </p:cellEditor>
+                        </p:column>
+                        <p:column style="width:32px">
+                            <p:rowEditor />
+                        </p:column>
+                        <p:column style="width:32px;text-align: center">
+                            <p:commandButton update=":formsource:sourceDetail"  oncomplete="PF('sourceDialog').show()" icon="ui-icon-search" title="View">
+                                <f:setPropertyActionListener value="#{item}" target="#{sourcedefinancementBean.selectedSource}" />
+                            </p:commandButton>
+                        </p:column>
+                        <p:column style="width:32px;text-align: center">
+                            <p:commandButton actionListener="#{sourcedefinancementBean.delete(item)}" icon="ui-icon-close" update=":formsource:sourceTable">
+                                <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert" />
+                            </p:commandButton>
+
+                            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                                <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                                <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                            </p:confirmDialog>
+                        </p:column>
+                        <f:facet name="footer">
+                            <p:commandButton value="nouveau" oncomplete="PF('sourcenewDialog').show()"/>
+                        </f:facet>
+                    </p:dataTable>
+                    <p:dialog header="source Info" widgetVar="sourceDialog" modal="false" showEffect="fade" hideEffect="fade" resizable="false">
+                        <p:outputPanel id="sourceDetail" style="text-align:center;">
+                            <p:panelGrid  columns="2" rendered="#{not empty sourcedefinancementBean.selectedSource}" columnClasses="label,value">
+
+                                <h:outputText value="id source:" />
+                                <h:outputText value="#{sourcedefinancementBean.selectedSource.idsource}" />
+
+                                <h:outputText value="libelle source" />
+                                <h:outputText value="#{sourcedefinancementBean.selectedSource.libellesource}" />
+
+                                <h:outputText value="cree le" />
+                                <h:outputText value="#{sourcedefinancementBean.selectedSource.creele}"/>
+
+                                <h:outputText value="cree par" />
+                                <h:outputText value="#{sourcedefinancementBean.selectedSource.creepar}"/>
+
+                                <h:outputText value="modifier le" />
+                                <h:outputText value="#{sourcedefinancementBean.selectedSource.modifiele}"/>
+                                <h:outputText value="modifie par" />
+                                <h:outputText value="#{sourcedefinancementBean.selectedSource.modifiepar}"/>
+                            </p:panelGrid>
+                        </p:outputPanel>
+                    </p:dialog>
+                </h:form>
+
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
+

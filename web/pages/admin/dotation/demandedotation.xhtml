@@ -1,0 +1,135 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+    <h:head>
+        <title>Facelet Title</title>
+    </h:head>
+    <h:body>
+        <ui:composition template="../template.xhtml">
+            <ui:define name="content">
+                <h:form id="dotation">
+                    <p:growl><p:autoUpdate/></p:growl>
+                    <p:panelGrid columns="2" >
+                        <p:outputLabel value="Structure:" for="structure" />
+                        <p:selectOneMenu id="structure" value="#{demandedotationBean.structure.codestructure}"   required="true" requiredMessage="The structure field is required.">
+                            <!-- TODO: update below reference to list of available items-->
+                            <f:ajax listener="#{demandedotationBean.changeStruture()}" render="@form"/>
+                            <p:ajax update=":nouveau,@widgetVar(listedemande)"/>
+                            <f:selectItem itemValue="" itemLabel="select One"/>
+                            <f:selectItems actionListener="magasinT" value="#{structureBean.liste}" var="structure" itemLabel="#{structure.libellestructure}" itemValue="#{structure.codestructure}"/>
+                        </p:selectOneMenu>
+                        <p:outputLabel value="Magasin:" for="magasinT" />
+                        <h:outputText value="#{demandedotationBean.magasin.nommagasin}" id="magasinT"/>
+                        <f:facet name="header">
+                            <h:outputText value="choix de la structure" />
+                        </f:facet>
+                    </p:panelGrid>
+                </h:form>
+                <p:dialog appendTo="@(body)" header="liste des démandes de dotation " widgetVar="listedemande" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                    <h:form id="liste">
+                        <p:dataTable value="#{demandedotationBean.listedesbons}" var="item" rows="5" paginator="true"
+                                     paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                     style="margin-bottom:20px"
+                                     emptyMessage="pas de demande de dotation" scrollable="true" selectionMode="single" selection="#{demandedotationBean.selectedBon}" rowKey="#{item.idbondemande}" >
+
+                            <p:ajax event="rowSelect" update=":liste"/>
+                            <p:ajax event="rowUnselect" update=":liste" />
+                            <f:facet name="header">Liste des demandes de dotation #{demandedotationBean.selectedBon.idbondemande}</f:facet>
+
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="demande "/>
+                                </f:facet>
+                                <h:outputText value="demande numéro #{item.idbondemande}"/>
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Date"/>
+                                </f:facet>
+                                <h:outputText value="#{item.creele}"/>
+                            </p:column>
+                            <f:facet name="footer">
+                                <c:if test="#{demandedotationBean.selectedBon!=null}">
+                                    <p:commandButton   update=":details,@widgetVar(DetailsDialog)" value="Détails" type="button" onclick="PF('DetailsDialog').show();" >
+                                        <p:ajax update=":details"/>
+                                    </p:commandButton>
+                                </c:if>
+                            </f:facet>
+                        </p:dataTable>
+                    </h:form>
+                </p:dialog>
+                <p:dialog appendTo="@(body)" widgetVar="DetailsDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                    <h:form id="details">
+                        <p:dataTable id="bonliste" value="#{demandedotationBean.selectedBon.demandeCollection}" var="item">
+                            <f:facet name="header">Liste des articles demandés du bon #{demandedotationBean.selectedBon.idbondemande}</f:facet>
+
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="article"/>
+                                </f:facet>
+                                <h:outputText value="#{item.article.designation}"/>
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Quantite demandée"/>
+                                </f:facet>
+                                <h:outputText value="#{item.quantite}"/>
+                            </p:column>
+                        </p:dataTable>
+                    </h:form>
+                </p:dialog>
+                <h:form id="nouveau">
+                    <p:dataTable value="#{demandedotationBean.bondemande.demandeCollection}" var="item">
+                        <f:facet name="header">Liste des articles pour une nouvelle demande</f:facet>
+
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="article"/>
+                            </f:facet>
+                            <h:outputText value="#{item.article.designation}"/>
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="Quantite demandée"/>
+                            </f:facet>
+                            <h:outputText value="#{item.quantite}"/>
+                        </p:column>
+                        <f:facet name="footer">
+                            <p:commandButton value="Ajouter article" type="button" onclick="PF('nouveauArticle').show();" />
+                            <c:if test="#{demandedotationBean.structure.codestructure!=null}">
+                                <c:if test="#{demandedotationBean.liste.size()>0}">
+                                    <p:commandButton ajax="false" value="Enregistrer" action="#{demandedotationBean.EnregistrerDemande()}" update=":ajoutArticle,@form,@widgetVar(listedemande)">
+                                        <f:ajax listener="#{dotationBean.init()}"/>
+                                    </p:commandButton>
+                                </c:if>
+                                <p:commandButton value="Liste des demandes" type="button" onclick="PF('listedemande').show();" update="@widgetVar(listedemande)"/>
+                            </c:if>
+                        </f:facet>
+                    </p:dataTable>
+                </h:form>
+                <p:dialog appendTo="@(body)" header="ajouter des articles " widgetVar="nouveauArticle" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                    <h:form id="ajoutArticle">
+                        <p:panelGrid columns="2">
+                            <p:outputLabel value="Codearticle:" for="codearticle" />
+                            <p:selectOneMenu id="codearticle" value="#{demandedotationBean.article.codearticle}" required="true" requiredMessage="The Codearticle field is required.">
+                                <!-- TODO: update below reference to list of available items-->
+                                <f:selectItems value="#{demandedotationBean.listeToAdd}" var="article" itemLabel="#{article.designation}" itemValue="#{article.codearticle}"/>
+                            </p:selectOneMenu>
+                            <p:outputLabel value="Quantite:" for="quantite"  />
+                            <p:inputText id="quantite" value="#{demandedotationBean.demande.quantite}" title="Quantite" required="true" requiredMessage="saisissez la quantité" />
+                        </p:panelGrid>
+                        <p:commandButton  update="ajoutArticle,nouveau" value="Ajouter" actionListener="#{demandedotationBean.ajouterArticle()}"/>
+
+                    </h:form>
+                </p:dialog>
+            </ui:define>
+        </ui:composition>
+
+    </h:body>
+</html>
+

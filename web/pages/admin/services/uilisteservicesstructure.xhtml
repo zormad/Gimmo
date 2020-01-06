@@ -1,0 +1,103 @@
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui">
+    
+    <p:dialog appendTo="@(body)" header="Liste de services de #{structureBean.selectedStructure2.libellestructure}" widgetVar="listeservicestructureDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+        <h:form id="formService">
+            <p:dataTable value="#{structureBean.selectedStructure2.serviceCollection}" var="item" id="serviceTable" rows="10" paginator="true"
+                         paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                         rowsPerPageTemplate="5,10,15" widgetVar="serviceTab" editable="true" style="margin-bottom:20px"
+                         emptyMessage="No service found with given criteria">
+                <p:ajax event="rowEdit" listener="#{serviceBean.update}"/>
+                <p:ajax event="rowEditCancel" listener="#{serviceBean.cancelled()}" />
+                <f:facet name="header">
+
+                    <p:commandButton id="toggler" type="button" value="Columns" style="float:right" icon="ui-icon-calculator" />
+                    <p:columnToggler datasource="serviceTable" trigger="toggler" />
+                </f:facet>
+                <p:column sortBy="#{item.codeservice}" filterBy="#{item.codeservice}">
+                    <f:facet name="header">
+                        <h:outputText value="Code service"/>
+                    </f:facet>
+                    <h:outputText value="#{item.codeservice}"/>
+                </p:column>
+                <p:column sortBy="#{item.libelleservice}" filterBy="#{item.libelleservice}">
+                    <f:facet name="header">
+                        <h:outputText value="Libelle service"/>
+                    </f:facet>
+                    <p:cellEditor>
+                        <f:facet name="output"><h:outputText value="#{item.libelleservice}" /></f:facet>
+                        <f:facet name="input"><p:inputText value="#{item.libelleservice}" style="width:100%"/></f:facet>
+                    </p:cellEditor>
+                </p:column>
+                <p:column>
+                    <f:facet name="header">
+                        <h:outputText value="Idagent"/>
+                    </f:facet>
+                    <p:cellEditor>
+                        <f:facet name="output"><h:outputText value="#{item.idagent.idagent}" /></f:facet>
+                        <f:facet name="input">
+                            <h:selectOneMenu value="#{item.idagent.idagent}">
+                                <f:selectItems value="#{agentBean.liste}" var="agent" itemLabel="#{agent.nom} #{agent.prenom}" itemValue="#{agent.idagent}"/>
+                            </h:selectOneMenu>
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+                <p:column>
+                    <f:facet name="header">
+                        <h:outputText value="Structure"/>
+                    </f:facet>
+                    <p:cellEditor>
+                        <f:facet name="output"><h:outputText value="#{item.structure.codestructure}" /></f:facet>
+                        <f:facet name="input">
+                            <h:selectOneMenu value="#{item.structure.codestructure}">
+                                <f:selectItems value="#{structureBean.liste}" var="struct" itemLabel="#{struct.libellestructure}" itemValue="#{struct.codestructure}"/>
+                            </h:selectOneMenu>
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+                <p:column style="width:32px;text-align: center">
+                    <p:commandButton update=":formserviceinfo"  oncomplete="PF('serviceInfoDialog').show()" icon="ui-icon-search" title="View">
+                        <f:setPropertyActionListener value="#{item}" target="#{serviceBean.selectedservice}" />
+                    </p:commandButton>
+                </p:column>
+               
+            </p:dataTable>
+        </h:form>
+    </p:dialog>
+    <p:dialog appendTo="@(body)" header="service Info" widgetVar="serviceInfoDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+        <h:form id="formserviceinfo">
+            <p:outputPanel id="serviceDetail" style="text-align:center;">
+                <p:panelGrid  columns="2" rendered="#{not empty serviceBean.selectedservice}" columnClasses="label,value">
+
+                    <h:outputText value="id service" />
+                    <h:outputText value="#{serviceBean.selectedservice.codeservice}" />
+
+                    <h:outputText value="libelle service" />
+                    <h:outputText value="#{serviceBean.selectedservice.libelleservice}" />
+
+                    <h:outputText value="responsable " />
+                    <h:outputText value="#{serviceBean.selectedservice.idagent.nom} #{serviceBean.selectedservice.idagent.prenom}" />
+
+                    <h:outputText value="structure " />
+                    <h:outputText value="#{serviceBean.selectedservice.structure.libellestructure}" />
+
+                    <h:outputText value="cree le" />
+                    <h:outputText value="#{serviceBean.selectedservice.creele}"/>
+
+                    <h:outputText value="cree par" />
+                    <h:outputText value="#{serviceBean.selectedservice.creepar}"/>
+
+                    <h:outputText value="modifier le" />
+                    <h:outputText value="#{serviceBean.selectedservice.modifiele}"/>
+                    <h:outputText value="modifie par" />
+                    <h:outputText value="#{serviceBean.selectedservice.modifiepar}"/>
+                </p:panelGrid>
+            </p:outputPanel>
+        </h:form>
+    </p:dialog>
+</ui:composition>
+
